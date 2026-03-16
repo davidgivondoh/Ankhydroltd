@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | ANK Hydro Admin</title>
+  <link rel="stylesheet" href="admin.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">ANK</div>
+      <div>
+        <h2>ANK Hydro</h2>
+        <span>Admin Panel</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="#" class="nav-item" data-section="services">
+        <span class="nav-icon">⚙️</span> Services
+      </a>
+      <a href="#" class="nav-item" data-section="packages">
+        <span class="nav-icon">💰</span> Packages
+      </a>
+      <a href="#" class="nav-item" data-section="projects">
+        <span class="nav-icon">🏗️</span> Projects
+      </a>
+      <a href="#" class="nav-item" data-section="blog">
+        <span class="nav-icon">📝</span> Blog Posts
+      </a>
+      <a href="#" class="nav-item" data-section="quotes">
+        <span class="nav-icon">📩</span> Quote Requests
+        <span class="badge" id="quotesBadge"></span>
+      </a>
+      <a href="#" class="nav-item" data-section="messages">
+        <span class="nav-icon">💬</span> Messages
+        <span class="badge" id="messagesBadge"></span>
+      </a>
+      <a href="#" class="nav-item" data-section="testimonials">
+        <span class="nav-icon">⭐</span> Testimonials
+      </a>
+      <a href="#" class="nav-item" data-section="team">
+        <span class="nav-icon">👥</span> Team
+      </a>
+      <a href="#" class="nav-item" data-section="faq">
+        <span class="nav-icon">❓</span> FAQ
+      </a>
+      <a href="#" class="nav-item" data-section="stats">
+        <span class="nav-icon">📈</span> Stats / Counters
+      </a>
+      <a href="#" class="nav-item" data-section="settings">
+        <span class="nav-icon">🔧</span> Site Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="../index.html" target="_blank" class="nav-item"><span class="nav-icon">🌐</span> View Website</a>
+      <a href="#" class="nav-item" id="logoutBtn"><span class="nav-icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="admin-main">
+    <!-- Top Bar -->
+    <header class="admin-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="topbar-right">
+        <span id="adminName">Admin</span>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="admin-content" id="adminContent">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="section-panel" id="section-dashboard">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <h2>Welcome back, Admin</h2>
+          <p>Here's what's happening with your ANK Hydro website today.</p>
+          <div class="quick-actions">
+            <a href="#" class="quick-action-btn" onclick="AdminApp.navigateTo('quotes');return false;">📩 View Quotes</a>
+            <a href="#" class="quick-action-btn" onclick="AdminApp.navigateTo('messages');return false;">💬 Messages</a>
+            <a href="#" class="quick-action-btn" onclick="AdminApp.openModal('blog');return false;">✏️ New Blog Post</a>
+            <a href="../index.html" target="_blank" class="quick-action-btn">🌐 View Site</a>
+          </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="dashboard-grid">
+          <div class="dash-card dash-blue">
+            <div class="dash-card-top">
+              <div class="dash-card-icon">📩</div>
+              <span class="dash-card-trend up" id="quotesTrend">— new</span>
+            </div>
+            <span class="dash-card-number" id="dashQuotes">0</span>
+            <span class="dash-card-label">Quote Requests</span>
+            <div class="dash-mini-chart" id="quotesChart"></div>
+          </div>
+          <div class="dash-card dash-green">
+            <div class="dash-card-top">
+              <div class="dash-card-icon">💬</div>
+              <span class="dash-card-trend up" id="messagesTrend">— unread</span>
+            </div>
+            <span class="dash-card-number" id="dashMessages">0</span>
+            <span class="dash-card-label">Contact Messages</span>
+            <div class="dash-mini-chart" id="messagesChart"></div>
+          </div>
+          <div class="dash-card dash-orange">
+            <div class="dash-card-top">
+              <div class="dash-card-icon">📝</div>
+              <span class="dash-card-trend neutral">published</span>
+            </div>
+            <span class="dash-card-number" id="dashBlog">0</span>
+            <span class="dash-card-label">Blog Posts</span>
+            <div class="dash-mini-chart" id="blogChart"></div>
+          </div>
+          <div class="dash-card dash-purple">
+            <div class="dash-card-top">
+              <div class="dash-card-icon">🏗️</div>
+              <span class="dash-card-trend neutral">total</span>
+            </div>
+            <span class="dash-card-number" id="dashProjects">0</span>
+            <span class="dash-card-label">Portfolio Projects</span>
+            <div class="dash-mini-chart" id="projectsChart"></div>
+          </div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="dashboard-cols">
+          <!-- Activity Feed -->
+          <div class="panel">
+            <h3 class="panel-title">Recent Activity</h3>
+            <div id="recentActivity" class="activity-feed">
+              <p class="empty-state">No recent activity yet. Actions you take will appear here.</p>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="panel">
+            <h3 class="panel-title">Content Overview</h3>
+            <ul class="quick-stat-list" id="quickStats">
+              <li class="quick-stat-item">
+                <span class="qs-label"><span class="qs-dot" style="background:var(--cyan);"></span> Services</span>
+                <span class="qs-value" id="qsServices">0</span>
+              </li>
+              <li class="quick-stat-item">
+                <span class="qs-label"><span class="qs-dot" style="background:var(--orange);"></span> Packages</span>
+                <span class="qs-value" id="qsPackages">0</span>
+              </li>
+              <li class="quick-stat-item">
+                <span class="qs-label"><span class="qs-dot" style="background:var(--green);"></span> Testimonials</span>
+                <span class="qs-value" id="qsTestimonials">0</span>
+              </li>
+              <li class="quick-stat-item">
+                <span class="qs-label"><span class="qs-dot" style="background:var(--purple);"></span> Team Members</span>
+                <span class="qs-value" id="qsTeam">0</span>
+              </li>
+              <li class="quick-stat-item">
+                <span class="qs-label"><span class="qs-dot" style="background:var(--red);"></span> FAQ Items</span>
+                <span class="qs-value" id="qsFaq">0</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SERVICES ===== -->
+      <div class="section-panel" id="section-services" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Manage Services</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('service')">+ Add Service</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Order</th><th>Service</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="servicesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PACKAGES ===== -->
+      <div class="section-panel" id="section-packages" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Manage Packages</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('package')">+ Add Package</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Package</th><th>Price (KES)</th><th>Category</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead>
+            <tbody id="packagesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PROJECTS ===== -->
+      <div class="section-panel" id="section-projects" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Projects / Portfolio</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('project')">+ Add Project</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Project</th><th>Location</th><th>Service</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="projectsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== BLOG ===== -->
+      <div class="section-panel" id="section-blog" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Blog Posts</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('blog')">+ New Post</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="blogTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== QUOTES ===== -->
+      <div class="section-panel" id="section-quotes" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Quote Requests</h2>
+          <button class="btn-admin btn-admin-outline" onclick="AdminApp.exportCSV('quotes')">Export CSV</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Date</th><th>Name</th><th>Phone</th><th>Service</th><th>Package</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="quotesTable"></tbody>
+          </table>
+          <p class="empty-state" id="quotesEmpty">No quote requests yet. They will appear here when visitors submit the quote form.</p>
+        </div>
+      </div>
+
+      <!-- ===== MESSAGES ===== -->
+      <div class="section-panel" id="section-messages" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Contact Messages</h2>
+          <button class="btn-admin btn-admin-outline" onclick="AdminApp.exportCSV('messages')">Export CSV</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="messagesTable"></tbody>
+          </table>
+          <p class="empty-state" id="messagesEmpty">No messages yet. They will appear here when visitors submit the contact form.</p>
+        </div>
+      </div>
+
+      <!-- ===== TESTIMONIALS ===== -->
+      <div class="section-panel" id="section-testimonials" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Testimonials</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('testimonial')">+ Add Testimonial</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Client</th><th>Location</th><th>Service</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="testimonialsTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== TEAM ===== -->
+      <div class="section-panel" id="section-team" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Team Members</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('team')">+ Add Member</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="teamTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== FAQ ===== -->
+      <div class="section-panel" id="section-faq" style="display:none;">
+        <div class="section-toolbar">
+          <h2>FAQ Management</h2>
+          <button class="btn-admin btn-admin-primary" onclick="AdminApp.openModal('faq')">+ Add Question</button>
+        </div>
+        <div class="panel">
+          <table class="admin-table">
+            <thead><tr><th>Order</th><th>Question</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="faqTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== STATS ===== -->
+      <div class="section-panel" id="section-stats" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Homepage Stats / Counters</h2>
+          <button class="btn-admin btn-admin-primary" id="saveStatsBtn">Save Changes</button>
+        </div>
+        <div class="panel">
+          <div class="stats-editor">
+            <div class="form-row">
+              <div class="form-group"><label>Boreholes Drilled</label><input type="number" id="stat-boreholes" /></div>
+              <div class="form-group"><label>Solar Systems Installed</label><input type="number" id="stat-solar" /></div>
+              <div class="form-group"><label>Happy Clients</label><input type="number" id="stat-clients" /></div>
+              <div class="form-group"><label>Counties Served</label><input type="number" id="stat-counties" /></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="section-panel" id="section-settings" style="display:none;">
+        <div class="section-toolbar">
+          <h2>Site Settings</h2>
+          <button class="btn-admin btn-admin-primary" id="saveSettingsBtn">Save Settings</button>
+        </div>
+        <div class="panel">
+          <div class="settings-grid">
+            <div class="form-group"><label>Company Name</label><input type="text" id="set-company" /></div>
+            <div class="form-group"><label>Tagline</label><input type="text" id="set-tagline" /></div>
+            <div class="form-group"><label>Phone Number</label><input type="text" id="set-phone" /></div>
+            <div class="form-group"><label>Email</label><input type="email" id="set-email" /></div>
+            <div class="form-group"><label>WhatsApp Number</label><input type="text" id="set-whatsapp" /></div>
+            <div class="form-group"><label>Address</label><input type="text" id="set-address" /></div>
+            <div class="form-group"><label>Working Hours</label><input type="text" id="set-hours" /></div>
+            <div class="form-group"><label>Facebook URL</label><input type="url" id="set-facebook" /></div>
+            <div class="form-group"><label>Instagram URL</label><input type="url" id="set-instagram" /></div>
+            <div class="form-group"><label>TikTok URL</label><input type="url" id="set-tiktok" /></div>
+            <div class="form-group"><label>Google Analytics ID</label><input type="text" id="set-ga" placeholder="G-XXXXXXXXXX" /></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:1.5rem;">
+          <h3 class="panel-title">Change Admin Password</h3>
+          <div class="form-row">
+            <div class="form-group"><label>New Password</label><input type="password" id="newPassword" /></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPassword" /></div>
+          </div>
+          <button class="btn-admin btn-admin-outline" id="changePasswordBtn">Update Password</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Item</h2>
+        <button class="modal-close" onclick="AdminApp.closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer">
+        <button class="btn-admin btn-admin-outline" onclick="AdminApp.closeModal()">Cancel</button>
+        <button class="btn-admin btn-admin-primary" id="modalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail View Modal -->
+  <div class="modal-overlay" id="detailOverlay">
+    <div class="modal modal-lg" id="detailModal">
+      <div class="modal-header">
+        <h2 id="detailTitle">Details</h2>
+        <button class="modal-close" onclick="AdminApp.closeDetail()">&times;</button>
+      </div>
+      <div class="modal-body" id="detailBody"></div>
+      <div class="modal-footer">
+        <button class="btn-admin btn-admin-outline" onclick="AdminApp.closeDetail()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

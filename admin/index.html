@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | ANK Hydro Limited</title>
+  <link rel="stylesheet" href="admin.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">ANK</div>
+        <h1>ANK Hydro Admin</h1>
+        <p>Sign in to manage your website</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" required placeholder="admin@ankhydroltd.co.ke" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="Enter your password" autocomplete="current-password" />
+        </div>
+        <div id="loginError" class="error-msg" style="display:none;"></div>
+        <button type="submit" class="btn-admin btn-admin-primary" style="width:100%;">Sign In</button>
+      </form>
+      <p class="login-footer">Default: <strong>admin@ankhydroltd.co.ke</strong> / <strong>admin123</strong></p>
+    </div>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>
