@@ -166,7 +166,7 @@ const AdminApp = {
         whatsapp: '+254 758 849 293',
         address: 'Kitui Town, PT Plaza, Room 4, Ground Floor',
         hours: 'Mon–Fri: 8AM–5PM, Sat: 8AM–1PM',
-        facebook: '', instagram: '', tiktok: '', ga: ''
+        facebook: '', instagram: '', tiktok: '', linkedin: '', youtube: '', twitter: '', ga: ''
       });
     }
 
