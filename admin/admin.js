@@ -56,20 +56,37 @@ const AdminApp = {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const errorEl = document.getElementById('loginError');
+    const btn = document.getElementById('loginBtn');
+    const btnText = btn?.querySelector('.login-btn-text');
+    const btnLoading = btn?.querySelector('.login-btn-loading');
 
     const storedPassword = localStorage.getItem(this.DB_KEYS.password) || 'admin123';
 
-    if (email === 'admin@ankhydroltd.co.ke' && password === storedPassword) {
-      localStorage.setItem(this.DB_KEYS.auth, JSON.stringify({
-        email,
-        loggedIn: true,
-        timestamp: Date.now()
-      }));
-      window.location.href = 'dashboard.html';
-    } else {
-      errorEl.textContent = 'Invalid email or password. Please try again.';
-      errorEl.style.display = 'block';
-    }
+    // Show loading state
+    if (btnText) btnText.style.display = 'none';
+    if (btnLoading) btnLoading.style.display = 'inline-flex';
+    if (btn) btn.disabled = true;
+    errorEl.style.display = 'none';
+
+    // Simulate brief auth delay for UX
+    setTimeout(() => {
+      if (email === 'admin@ankhydroltd.co.ke' && password === storedPassword) {
+        localStorage.setItem(this.DB_KEYS.auth, JSON.stringify({
+          email,
+          loggedIn: true,
+          timestamp: Date.now()
+        }));
+        window.location.href = 'dashboard.html';
+      } else {
+        errorEl.textContent = 'Invalid email or password. Please try again.';
+        errorEl.style.display = 'block';
+        errorEl.style.background = '';
+        errorEl.style.color = '';
+        if (btnText) btnText.style.display = 'inline';
+        if (btnLoading) btnLoading.style.display = 'none';
+        if (btn) btn.disabled = false;
+      }
+    }, 600);
   },
 
   isAuthenticated() {
