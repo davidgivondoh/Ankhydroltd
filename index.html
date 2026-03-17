@@ -48,6 +48,7 @@
   <main>
     <!-- Hero -->
     <section class="hero">
+      <div class="hero-image-bg"><img src="images/solar-panel-daytime.jpg" alt="Solar panel installation by ANK Hydro" loading="eager"></div>
       <div class="hero-bg-pattern"></div>
       <div class="container hero-inner">
         <div class="hero-content">
@@ -330,6 +331,45 @@
       </div>
     </section>
 
+    <!-- Project Gallery -->
+    <section class="section bg-gray">
+      <div class="container">
+        <div class="section-header centered fade-up">
+          <p class="eyebrow">Our Work</p>
+          <h2>Projects in Action</h2>
+          <p>Real installations, real impact — see how we're powering homes and farms across Kenya.</p>
+        </div>
+        <div class="gallery-grid stagger-children">
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <img src="images/solar-panel-daytime.jpg" alt="Solar panel structure on farmland" loading="lazy">
+            <div class="gallery-overlay"><p>Solar Panel Installation — Rural Farm</p></div>
+          </div>
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <img src="images/solar-pump-worker.jpg" alt="Worker testing solar-powered borehole pump" loading="lazy">
+            <div class="gallery-overlay"><p>Solar-Powered Borehole Pump Testing</p></div>
+          </div>
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <img src="images/community-water-access.jpg" alt="Community accessing clean water from borehole" loading="lazy">
+            <div class="gallery-overlay"><p>Community Water Access — Borehole Project</p></div>
+          </div>
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <img src="images/solar-panel-night.jpg" alt="Solar structure installation at night" loading="lazy">
+            <div class="gallery-overlay"><p>Solar Structure — Night Installation</p></div>
+          </div>
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <video src="images/project-video-1.mp4" muted preload="metadata"></video>
+            <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div>
+            <div class="gallery-overlay"><p>Project Video — Solar Pump in Action</p></div>
+          </div>
+          <div class="gallery-item fade-up" onclick="openLightbox(this)">
+            <video src="images/project-video-2.mp4" muted preload="metadata"></video>
+            <div class="play-icon"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg></div>
+            <div class="gallery-overlay"><p>Project Video — Water Flow Test</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- CTA Banner -->
     <section class="cta-banner">
       <div class="container">
@@ -355,7 +395,7 @@
         </div>
         <div class="grid-3 stagger-children">
           <article class="blog-card fade-up">
-            <div class="blog-thumb"><svg width="40" height="40"><use href="icons.svg#icon-solar"/></svg></div>
+            <div class="blog-thumb" style="padding:0;"><img src="images/solar-panel-daytime.jpg" alt="Solar installation" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>
             <div class="blog-body">
               <p class="blog-category">Solar Energy Guide</p>
               <h3>How Much Does Solar Installation Cost in Kenya?</h3>
@@ -364,7 +404,7 @@
             </div>
           </article>
           <article class="blog-card fade-up">
-            <div class="blog-thumb"><svg width="40" height="40"><use href="icons.svg#icon-droplet"/></svg></div>
+            <div class="blog-thumb" style="padding:0;"><img src="images/solar-pump-worker.jpg" alt="Borehole drilling" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>
             <div class="blog-body">
               <p class="blog-category">Borehole Tips</p>
               <h3>Everything You Need to Know Before Drilling a Borehole</h3>
@@ -373,7 +413,7 @@
             </div>
           </article>
           <article class="blog-card fade-up">
-            <div class="blog-thumb"><svg width="40" height="40"><use href="icons.svg#icon-sprout"/></svg></div>
+            <div class="blog-thumb" style="padding:0;"><img src="images/community-water-access.jpg" alt="Irrigation farming" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>
             <div class="blog-body">
               <p class="blog-category">Irrigation & Farming</p>
               <h3>Drip Irrigation vs Overhead: Which Is Best for Your Farm?</h3>
@@ -467,6 +507,35 @@
     <svg width="20" height="20"><use href="icons.svg#icon-chevron-up"/></svg>
   </button>
 
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <div id="lightbox-content"></div>
+  </div>
+
   <script src="main.js"></script>
+  <script>
+  function openLightbox(el) {
+    const lb = document.getElementById('lightbox');
+    const content = document.getElementById('lightbox-content');
+    const video = el.querySelector('video');
+    const img = el.querySelector('img');
+    if (video) {
+      content.innerHTML = '<video src="' + video.src + '" controls autoplay style="max-width:90vw;max-height:85vh;border-radius:12px;"></video>';
+    } else if (img) {
+      content.innerHTML = '<img src="' + img.src + '" alt="' + img.alt + '">';
+    }
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(e) {
+    if (e && e.target !== e.currentTarget && !e.target.classList.contains('lightbox-close')) return;
+    const lb = document.getElementById('lightbox');
+    lb.classList.remove('active');
+    const vid = lb.querySelector('video');
+    if (vid) vid.pause();
+    document.body.style.overflow = '';
+  }
+  </script>
 </body>
 </html>

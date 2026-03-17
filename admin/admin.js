@@ -885,7 +885,8 @@ const AdminApp = {
         whatsapp: val('set-whatsapp'), address: val('set-address'),
         hours: val('set-hours'), facebook: val('set-facebook'),
         instagram: val('set-instagram'), tiktok: val('set-tiktok'),
-        ga: val('set-ga')
+        linkedin: val('set-linkedin'), youtube: val('set-youtube'),
+        twitter: val('set-twitter'), ga: val('set-ga')
       };
       this.save('settings', settings);
       this.logActivity('Updated site settings', '🔧');
@@ -913,7 +914,8 @@ const AdminApp = {
       set('set-whatsapp', settings.whatsapp); set('set-address', settings.address);
       set('set-hours', settings.hours); set('set-facebook', settings.facebook);
       set('set-instagram', settings.instagram); set('set-tiktok', settings.tiktok);
-      set('set-ga', settings.ga);
+      set('set-linkedin', settings.linkedin); set('set-youtube', settings.youtube);
+      set('set-twitter', settings.twitter); set('set-ga', settings.ga);
     }
   },
 
