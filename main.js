@@ -262,4 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---------- Lazy Image Load Animation ----------
+  document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+    if (img.complete) {
+      img.classList.add('loaded');
+    } else {
+      img.addEventListener('load', () => img.classList.add('loaded'));
+    }
+  });
+
 });
