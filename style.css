@@ -193,6 +193,7 @@ ul { list-style: none; }
   justify-content: space-between;
   gap: 1rem;
   padding: .75rem 0;
+  position: relative;
 }
 
 .brand {
@@ -1294,6 +1295,7 @@ ul { list-style: none; }
     padding: 1rem;
     box-shadow: 0 12px 30px rgba(0,0,0,.3);
     border-top: 1px solid rgba(255,255,255,.1);
+    z-index: 999;
   }
   .nav-links.open { display: flex; }
   .nav-links a { padding: .75rem 1rem; width: 100%; }
