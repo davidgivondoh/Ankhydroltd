@@ -70,7 +70,7 @@ const AdminApp = {
 
     // Simulate brief auth delay for UX
     setTimeout(() => {
-      if (email === 'admin@ankhydroltd.co.ke' && password === storedPassword) {
+      if (email === 'admin@ankhydro.com' && password === storedPassword) {
         localStorage.setItem(this.DB_KEYS.auth, JSON.stringify({
           email,
           loggedIn: true,

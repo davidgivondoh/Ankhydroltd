@@ -3,7 +3,7 @@
 > **Tagline:** *Power of technology, get it right for better tomorrow*
 > **Motto:** *Our Customers are our priority.*
 > **Industry:** Solar Energy, Water Drilling & Irrigation Solutions — Kenya
-> **Website:** [www.ankhydroltd.co.ke](https://www.ankhydroltd.co.ke)
+> **Website:** [www.ankhydro.com](https://www.ankhydro.com)
 
 ---
 
@@ -18,7 +18,7 @@ ANK Hydro Limited is a Kenyan-based company headquartered in Kitui Town, special
 | Company Name     | ANK HYDRO LIMITED                                        |
 | Phone            | +254 758 849 293                                         |
 | Email            | ankhydroltd@gmail.com                                    |
-| Website          | www.ankhydroltd.co.ke                                    |
+| Website          | www.ankhydro.com                                    |
 | Physical Address | Kitui Town, PT Plaza, Room 4, Ground Floor               |
 | WhatsApp         | +254 758 849 293                                         |
 
@@ -860,7 +860,7 @@ A landing page listing all 10 services with hexagonal icons, brief descriptions,
 
 ## 11. Deployment Checklist
 
-- [ ] Domain `ankhydroltd.co.ke` configured with SSL certificate
+- [ ] Domain `ankhydro.com` configured with SSL certificate
 - [ ] All page content populated and proofread
 - [ ] All 10 services pages with accurate content
 - [ ] Packages page with correct pricing (KES 360K, 52K, 86K, 125K, 140K)
@@ -968,7 +968,7 @@ ANK Hydro Limited ("we", "our", "us") is committed to protecting your personal i
 
 **Effective Date:** March 2026
 
-These Terms of Service govern your use of the ANK Hydro Limited website (www.ankhydroltd.co.ke).
+These Terms of Service govern your use of the ANK Hydro Limited website (www.ankhydro.com).
 
 **Services:** All services described on this website are subject to site assessment and may vary based on location, geological conditions, and project requirements. Prices listed are starting prices ("FROM KES X") and final quotes will be provided after consultation.
 
