@@ -1,0 +1,19 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ankhtnew/public_html/
+    - /bin/cp -R index.html "$DEPLOYPATH"
+    - /bin/cp -R about.html "$DEPLOYPATH"
+    - /bin/cp -R services.html "$DEPLOYPATH"
+    - /bin/cp -R contact.html "$DEPLOYPATH"
+    - /bin/cp -R packages.html "$DEPLOYPATH"
+    - /bin/cp -R quote.html "$DEPLOYPATH"
+    - /bin/cp -R blog.html "$DEPLOYPATH"
+    - /bin/cp -R faq.html "$DEPLOYPATH"
+    - /bin/cp -R terms.html "$DEPLOYPATH"
+    - /bin/cp -R privacy.html "$DEPLOYPATH"
+    - /bin/cp -R style.css "$DEPLOYPATH"
+    - /bin/cp -R main.js "$DEPLOYPATH"
+    - /bin/cp -R site-data.js "$DEPLOYPATH"
+    - /bin/cp -R images/ "$DEPLOYPATH"
+    - /bin/cp -R admin/ "$DEPLOYPATH"
