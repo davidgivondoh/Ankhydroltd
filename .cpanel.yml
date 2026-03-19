@@ -17,3 +17,4 @@ deployment:
     - /bin/cp -R site-data.js "$DEPLOYPATH"
     - /bin/cp -R images/ "$DEPLOYPATH"
     - /bin/cp -R admin/ "$DEPLOYPATH"
+    - /bin/cp -R send-email.php "$DEPLOYPATH"

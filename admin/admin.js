@@ -162,7 +162,7 @@ const AdminApp = {
         company: 'ANK HYDRO LIMITED',
         tagline: 'Power of technology, get it right for better tomorrow',
         phone: '+254 758 849 293',
-        email: 'ankhydroltd@gmail.com',
+        email: 'info@ankhydro.com',
         whatsapp: '+254 758 849 293',
         address: 'Kitui Town, PT Plaza, Room 4, Ground Floor',
         hours: 'Mon–Fri: 8AM–5PM, Sat: 8AM–1PM',

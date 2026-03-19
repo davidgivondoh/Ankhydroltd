@@ -17,7 +17,7 @@ ANK Hydro Limited is a Kenyan-based company headquartered in Kitui Town, special
 | ---------------- | -------------------------------------------------------- |
 | Company Name     | ANK HYDRO LIMITED                                        |
 | Phone            | +254 758 849 293                                         |
-| Email            | ankhydroltd@gmail.com                                    |
+| Email            | info@ankhydro.com                                    |
 | Website          | www.ankhydro.com                                    |
 | Physical Address | Kitui Town, PT Plaza, Room 4, Ground Floor               |
 | WhatsApp         | +254 758 849 293                                         |
@@ -221,7 +221,7 @@ These are the company's confirmed services as listed on their official flyer:
     - Company logo + "ANK HYDRO LIMITED"
     - Tagline: "Power of technology, get it right for better tomorrow"
     - Quick Links: Home, About, Services, Packages, Projects, Blog, Contact
-    - Contact: +254 758 849 293 | ankhydroltd@gmail.com
+    - Contact: +254 758 849 293 | info@ankhydro.com
     - Address: Kitui Town, PT Plaza, Room 4, Ground Floor
     - Social media icons: Facebook, Instagram, Twitter/X, LinkedIn, YouTube, TikTok
     - WhatsApp floating button (global, all pages): +254 758 849 293
@@ -544,7 +544,7 @@ A landing page listing all 10 services with hexagonal icons, brief descriptions,
 **Sections:**
 1. **Contact Details Display**
    - Phone: +254 758 849 293 (click-to-call on mobile)
-   - Email: ankhydroltd@gmail.com
+   - Email: info@ankhydro.com
    - Address: Kitui Town, PT Plaza, Room 4, Ground Floor
    - Working hours (admin-editable)
 
@@ -574,7 +574,7 @@ A landing page listing all 10 services with hexagonal icons, brief descriptions,
 - Upload Site Photos (optional, max 5 files)
 - Submit Button
 
-**After Submission:** Success message + email notification to ankhydroltd@gmail.com + WhatsApp notification (optional)
+**After Submission:** Success message + email notification to info@ankhydro.com + WhatsApp notification (optional)
 
 ---
 
@@ -768,7 +768,7 @@ A landing page listing all 10 services with hexagonal icons, brief descriptions,
 - **WhatsApp Business API** — floating button on all pages, pre-filled message: "Hi ANK Hydro, I'm interested in..."
 - **Google Maps** — embedded on contact page with pin at PT Plaza, Kitui Town
 - **Google Analytics 4** — traffic, conversion, and event tracking
-- **Email Notifications** — admin alerts for new quotes/contacts to ankhydroltd@gmail.com
+- **Email Notifications** — admin alerts for new quotes/contacts to info@ankhydro.com
 - **Social Media Share** — Open Graph tags for blog posts and projects
 - **Click-to-Call** — phone number tappable on mobile: tel:+254758849293
 - **SMS Gateway (optional)** — Africa's Talking for SMS notifications on high-priority leads
@@ -864,8 +864,8 @@ A landing page listing all 10 services with hexagonal icons, brief descriptions,
 - [ ] All page content populated and proofread
 - [ ] All 10 services pages with accurate content
 - [ ] Packages page with correct pricing (KES 360K, 52K, 86K, 125K, 140K)
-- [ ] Contact form sends notifications to ankhydroltd@gmail.com
-- [ ] Quote form sends notifications to ankhydroltd@gmail.com
+- [ ] Contact form sends notifications to info@ankhydro.com
+- [ ] Quote form sends notifications to info@ankhydro.com
 - [ ] WhatsApp button links to wa.me/254758849293
 - [ ] Click-to-call works with +254 758 849 293
 - [ ] Google Maps pin on PT Plaza, Kitui Town
@@ -958,9 +958,9 @@ ANK Hydro Limited ("we", "our", "us") is committed to protecting your personal i
 - We do not sell or share your personal information with third parties for marketing
 - All form submissions are encrypted via SSL
 - Data is stored securely and accessed only by authorized personnel
-- You may request deletion of your data at any time by emailing ankhydroltd@gmail.com
+- You may request deletion of your data at any time by emailing info@ankhydro.com
 
-**Contact:** For privacy-related inquiries, email ankhydroltd@gmail.com or call +254 758 849 293.
+**Contact:** For privacy-related inquiries, email info@ankhydro.com or call +254 758 849 293.
 
 ---
 
@@ -978,7 +978,7 @@ These Terms of Service govern your use of the ANK Hydro Limited website (www.ank
 
 **Limitation of Liability:** ANK Hydro Limited provides professional services to the best of its ability. Results such as borehole water yield depend on geological conditions and cannot be guaranteed beyond what is indicated by hydrological surveys.
 
-**Contact:** For questions about these terms, contact ankhydroltd@gmail.com or +254 758 849 293.
+**Contact:** For questions about these terms, contact info@ankhydro.com or +254 758 849 293.
 
 ---
 

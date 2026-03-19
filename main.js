@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
       saveToAdmin('messages', contactForm);
+      sendEmail('contact', contactForm);
       showSuccess(contactForm, 'contactSuccess');
     });
   }
@@ -138,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     quoteForm.addEventListener('submit', (e) => {
       e.preventDefault();
       saveToAdmin('quotes', quoteForm);
+      sendEmail('quote', quoteForm);
       showSuccess(quoteForm, 'quoteSuccess');
     });
   }
@@ -200,6 +202,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const waUrl = `https://wa.me/254758849293?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
+  }
+
+  function sendEmail(type, form) {
+    const formData = new FormData(form);
+    const data = { type };
+    formData.forEach((value, key) => { data[key] = value; });
+
+    fetch('/send-email.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
   }
 
   function showSuccess(form, successId) {
