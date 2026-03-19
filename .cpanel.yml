@@ -18,3 +18,4 @@ deployment:
     - /bin/cp -R images/ "$DEPLOYPATH"
     - /bin/cp -R admin/ "$DEPLOYPATH"
     - /bin/cp -R send-email.php "$DEPLOYPATH"
+    - /bin/cp -R icons.svg "$DEPLOYPATH"
