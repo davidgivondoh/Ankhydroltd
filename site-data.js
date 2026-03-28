@@ -304,12 +304,15 @@
       // Render into the grid container
       container.className = 'grid-3 stagger-children';
 
-      // Default images for package cards
+      // Default images for package cards by name keyword
       const defaultImages = {
-        'hybrid': 'images/solar-panel-night.jpg',
-        'solar': 'images/solar-panel-daytime.jpg',
-        'pump': 'images/solar-pump-worker.jpg',
-        'water': 'images/community-water-access.jpg'
+        'hybrid': 'images/pkg-hybrid-solar.jpg',
+        '200w': 'images/pkg-pump-200w.jpg',
+        '500w': 'images/pkg-pump-500w.jpg',
+        '750w': 'images/pkg-pump-750w.jpg',
+        '1300w': 'images/pkg-pump-1300w.jpg',
+        'pump': 'images/pkg-pump-750w.jpg',
+        'solar': 'images/pkg-hybrid-solar.jpg'
       };
 
       active.forEach(pkg => {
