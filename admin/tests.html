@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin-to-Frontend Integration Tests | ANK Hydro</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #0F172A; color: #E2E8F0; padding: 2rem; line-height: 1.6; }
+    h1 { font-size: 1.5rem; margin-bottom: .5rem; color: #fff; }
+    h1 span { color: #64748B; font-weight: 400; font-size: .9rem; }
+    .subtitle { color: #64748B; margin-bottom: 2rem; font-size: .9rem; }
+    .test-group { margin-bottom: 2rem; }
+    .test-group h2 { font-size: 1rem; color: #00B4F0; margin-bottom: .75rem; padding-bottom: .5rem; border-bottom: 1px solid #1E293B; }
+    .test { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-radius: 8px; margin-bottom: .25rem; font-size: .85rem; }
+    .test.pass { background: rgba(16,185,129,.1); }
+    .test.fail { background: rgba(239,68,68,.15); }
+    .test.pending { background: rgba(100,116,139,.1); }
+    .icon { width: 20px; text-align: center; flex-shrink: 0; font-size: .9rem; }
+    .test.pass .icon::before { content: '\2713'; color: #10B981; font-weight: 700; }
+    .test.fail .icon::before { content: '\2717'; color: #EF4444; font-weight: 700; }
+    .test.pending .icon::before { content: '\25CB'; color: #64748B; }
+    .test-name { flex: 1; }
+    .test-detail { font-size: .75rem; color: #94A3B8; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .test.fail .test-detail { color: #FCA5A5; }
+    .summary { margin-top: 2rem; padding: 1.25rem; border-radius: 12px; background: #1E293B; display: flex; gap: 2rem; align-items: center; }
+    .summary-stat { text-align: center; }
+    .summary-stat .num { font-size: 2rem; font-weight: 800; display: block; }
+    .summary-stat .label { font-size: .75rem; color: #64748B; text-transform: uppercase; letter-spacing: .05em; }
+    .pass-color { color: #10B981; }
+    .fail-color { color: #EF4444; }
+    .total-color { color: #00B4F0; }
+    .bar { flex: 1; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+    .controls { margin-bottom: 1.5rem; display: flex; gap: .5rem; }
+    .btn { padding: .6rem 1.2rem; border-radius: 8px; border: none; font-family: inherit; font-weight: 600; font-size: .85rem; cursor: pointer; }
+    .btn-run { background: #00B4F0; color: #fff; }
+    .btn-run:hover { background: #0095D0; }
+    .btn-clear { background: #334155; color: #94A3B8; }
+    .btn-clear:hover { background: #475569; color: #fff; }
+    /* Hidden test iframe */
+    #testFrame { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Admin &rarr; Frontend Integration Tests <span>v1.0</span></h1>
+  <p class="subtitle">Verifies that data saved in admin localStorage correctly renders on frontend pages.</p>
+
+  <div class="controls">
+    <button class="btn btn-run" onclick="runAllTests()">Run All Tests</button>
+    <button class="btn btn-clear" onclick="clearTestData()">Clear Test Data</button>
+  </div>
+
+  <div id="results"></div>
+  <div class="summary" id="summary" style="display:none;">
+    <div class="summary-stat"><span class="num total-color" id="totalCount">0</span><span class="label">Total</span></div>
+    <div class="summary-stat"><span class="num pass-color" id="passCount">0</span><span class="label">Passed</span></div>
+    <div class="summary-stat"><span class="num fail-color" id="failCount">0</span><span class="label">Failed</span></div>
+    <div class="bar"><div class="bar-fill" id="passBar" style="width:0%;background:#10B981;"></div></div>
+  </div>
+
+  <iframe id="testFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
+
+<script>
+// ================================================================
+// TEST DATA — Simulates what the admin panel saves to localStorage
+// ================================================================
+const TEST_DATA = {
+  settings: {
+    company: 'TEST COMPANY NAME',
+    tagline: 'Test tagline for verification',
+    phone: '+254 111 222 333',
+    email: 'test@testhydro.com',
+    whatsapp: '+254111222333',
+    address: '123 Test Street, Test City',
+    hours: 'Mon-Fri 9AM-5PM',
+    facebook: 'https://facebook.com/testhydro',
+    instagram: 'https://instagram.com/testhydro',
+    tiktok: '', linkedin: '', youtube: '', twitter: '', ga: ''
+  },
+  stats: { boreholes: 999, solar: 888, clients: 777, counties: 66 },
+  services: [
+    { id: 101, title: 'TEST Solar Service', slug: 'solar-installation', category: 'Solar Energy', description: 'TEST solar description updated', status: 'published', order: 1 },
+    { id: 102, title: 'TEST Borehole Service', slug: 'borehole-drilling', category: 'Water/Borehole', description: 'TEST borehole description', status: 'published', order: 2 },
+    { id: 103, title: 'TEST Draft Service', slug: 'draft-service', category: 'Other', description: 'Should not appear', status: 'draft', order: 3 }
+  ],
+  packages: [
+    { id: 201, name: 'TEST Hybrid Solar Package', price: 999000, priceLabel: 'FROM KES 999,000', category: 'Solar', specs: 'Test Spec 1, Test Spec 2, Test Spec 3', status: 'active', featured: true, order: 1 },
+    { id: 202, name: 'TEST Pump 200W', price: 55000, priceLabel: 'FROM KES 55,000', category: 'Pumps', specs: 'Pump A, Controller B, Panel C', status: 'active', featured: true, order: 2 },
+    { id: 203, name: 'TEST Inactive Package', price: 10000, priceLabel: 'KES 10,000', category: 'Other', specs: 'Should not appear', status: 'inactive', featured: false, order: 3 }
+  ],
+  testimonials: [
+    { id: 301, client: 'TEST Client Alpha', location: 'Test County', service: 'Solar', text: 'TEST testimonial text from admin', rating: 5, status: 'published', order: 1 },
+    { id: 302, client: 'TEST Client Beta', location: 'Beta County', service: 'Borehole', text: 'Another TEST testimonial', rating: 4, status: 'published', order: 2 },
+    { id: 303, client: 'Draft Client', location: 'X', service: 'X', text: 'Should not appear', rating: 3, status: 'draft', order: 3 }
+  ],
+  team: [
+    { id: 401, name: 'TEST Engineer', role: 'Lead Tester', bio: 'TEST bio text', status: 'active', order: 1 },
+    { id: 402, name: 'TEST Manager', role: 'QA Manager', bio: 'TEST manager bio', status: 'active', order: 2 }
+  ],
+  faq: [
+    { id: 501, question: 'TEST FAQ Question One?', answer: 'TEST FAQ Answer One.', category: 'Testing', status: 'published', order: 1 },
+    { id: 502, question: 'TEST FAQ Question Two?', answer: 'TEST FAQ Answer Two.', category: 'Testing', status: 'published', order: 2 },
+    { id: 503, question: 'Draft FAQ?', answer: 'Should not appear', category: 'Hidden', status: 'draft', order: 3 }
+  ],
+  blog: [
+    { id: 601, title: 'TEST Blog Post Title', slug: 'test-blog-post', category: 'Solar Energy', author: 'Test Author', content: 'TEST blog content here for verification purposes and testing the full flow.', date: '2026-03-28', status: 'published', tags: 'test' },
+    { id: 602, title: 'TEST Draft Post', slug: 'draft-post', category: 'General', author: 'Admin', content: 'Should not appear', date: '2026-03-27', status: 'draft', tags: '' }
+  ],
+  projects: [
+    { id: 701, title: 'TEST Solar Project', location: 'Test County', service: 'Solar Installation', description: 'TEST project', date: '2026-03-01', status: 'published' },
+    { id: 702, title: 'TEST Draft Project', location: 'X', service: 'X', description: 'Should not appear', date: '2026-01-01', status: 'draft' }
+  ]
+};
+
+// ================================================================
+// TEST RUNNER
+// ================================================================
+let results = [];
+let currentGroup = '';
+
+function assert(name, condition, detail = '') {
+  results.push({ group: currentGroup, name, pass: !!condition, detail: detail || (condition ? 'OK' : 'FAILED') });
+}
+
+function group(name) { currentGroup = name; }
+
+function writeTestDataToLocalStorage() {
+  const keys = {
+    settings: 'ank_settings', stats: 'ank_stats', services: 'ank_services',
+    packages: 'ank_packages', testimonials: 'ank_testimonials', team: 'ank_team',
+    faq: 'ank_faq', blog: 'ank_blog', projects: 'ank_projects'
+  };
+  Object.entries(keys).forEach(([key, storageKey]) => {
+    localStorage.setItem(storageKey, JSON.stringify(TEST_DATA[key]));
+  });
+}
+
+function clearTestData() {
+  ['ank_settings','ank_stats','ank_services','ank_packages','ank_testimonials',
+   'ank_team','ank_faq','ank_blog','ank_projects'].forEach(k => localStorage.removeItem(k));
+  document.getElementById('results').innerHTML = '<p style="color:#64748B;">Test data cleared from localStorage.</p>';
+  document.getElementById('summary').style.display = 'none';
+}
+
+// ================================================================
+// PAGE TESTS — Load a page in iframe and verify DOM
+// ================================================================
+function loadPage(url) {
+  return new Promise((resolve, reject) => {
+    const frame = document.getElementById('testFrame');
+    frame.onload = () => {
+      // Wait a beat for site-data.js async init to complete
+      setTimeout(() => resolve(frame.contentDocument || frame.contentWindow.document), 800);
+    };
+    frame.onerror = reject;
+    frame.src = url;
+  });
+}
+
+async function testIndexPage() {
+  group('Homepage (index.html)');
+  const doc = await loadPage('../index.html');
+
+  // Settings: phone
+  const headerPhone = doc.querySelector('.header-phone');
+  assert('Phone number updated in header',
+    headerPhone && headerPhone.textContent.includes('111 222 333'),
+    headerPhone ? headerPhone.textContent.trim() : 'Element not found');
+
+  // Settings: email in footer
+  const footerEmail = doc.querySelector('.footer-contact-item a[href^="mailto:"]');
+  assert('Email updated in footer',
+    footerEmail && footerEmail.textContent.includes('test@testhydro.com'),
+    footerEmail ? footerEmail.textContent.trim() : 'Element not found');
+
+  // Settings: address in footer
+  const footerSpans = doc.querySelectorAll('.footer-contact-item span');
+  let addressFound = false;
+  footerSpans.forEach(s => { if (s.textContent.includes('123 Test Street')) addressFound = true; });
+  assert('Address updated in footer', addressFound,
+    addressFound ? '123 Test Street, Test City' : 'Address not found in footer spans');
+
+  // Settings: company name in footer
+  const brand = doc.querySelector('.footer-brand h3');
+  assert('Company name updated in footer',
+    brand && brand.textContent === 'TEST COMPANY NAME',
+    brand ? brand.textContent : 'Element not found');
+
+  // Settings: WhatsApp
+  const wa = doc.querySelector('.whatsapp-float');
+  assert('WhatsApp link updated',
+    wa && wa.href.includes('wa.me/254111222333'),
+    wa ? wa.href.substring(0, 60) : 'Element not found');
+
+  // Settings: social media
+  const fb = doc.querySelector('.footer-social a[aria-label="Facebook"]');
+  assert('Facebook URL updated',
+    fb && fb.href.includes('facebook.com/testhydro'),
+    fb ? fb.href : 'Element not found');
+
+  // Stats
+  const statEls = doc.querySelectorAll('[data-count]');
+  let boreholeCount = null;
+  statEls.forEach(el => {
+    const label = el.closest('.stat-item');
+    if (label && label.querySelector('.stat-label')?.textContent.includes('Boreholes')) {
+      boreholeCount = el.getAttribute('data-count');
+    }
+  });
+  assert('Stats: boreholes count updated to 999',
+    boreholeCount === '999',
+    'data-count=' + boreholeCount);
+
+  // Services
+  const serviceCards = doc.querySelectorAll('.service-card');
+  assert('Services rendered (published only, not draft)',
+    serviceCards.length === 2,
+    serviceCards.length + ' cards found (expected 2)');
+
+  const firstService = serviceCards[0];
+  assert('Service card title matches admin data',
+    firstService && firstService.querySelector('h3')?.textContent === 'TEST Solar Service',
+    firstService?.querySelector('h3')?.textContent || 'No h3');
+
+  // Packages (featured)
+  const pkgCards = doc.querySelectorAll('.package-card');
+  assert('Featured packages rendered (active+featured only)',
+    pkgCards.length === 2,
+    pkgCards.length + ' cards found (expected 2)');
+
+  const pkgImg = doc.querySelector('.package-card .package-img img');
+  assert('Package card has image',
+    pkgImg && pkgImg.src && pkgImg.src.length > 10,
+    pkgImg ? pkgImg.src.split('/').pop() : 'No image element');
+
+  const pkgTitle = pkgCards[0]?.querySelector('h3');
+  assert('Package title matches admin data',
+    pkgTitle && pkgTitle.textContent.includes('TEST'),
+    pkgTitle?.textContent || 'No h3');
+
+  // Testimonials
+  const testimonialCards = doc.querySelectorAll('.testimonial-card');
+  assert('Testimonials rendered (published only)',
+    testimonialCards.length === 2,
+    testimonialCards.length + ' cards found (expected 2)');
+
+  const testimonialText = testimonialCards[0]?.querySelector('.testimonial-text');
+  assert('Testimonial text matches admin data',
+    testimonialText && testimonialText.textContent.includes('TEST testimonial'),
+    testimonialText?.textContent?.substring(0, 40) || 'No text');
+
+  // Blog
+  const blogCards = doc.querySelectorAll('.blog-card');
+  assert('Blog cards rendered on homepage (published only)',
+    blogCards.length === 1,
+    blogCards.length + ' cards found (expected 1)');
+
+  // Projects / Gallery
+  const galleryItems = doc.querySelectorAll('.gallery-item');
+  assert('Gallery items rendered (published projects only)',
+    galleryItems.length === 1,
+    galleryItems.length + ' items found (expected 1)');
+
+  const galleryOverlay = galleryItems[0]?.querySelector('.gallery-overlay p');
+  assert('Gallery caption matches project title',
+    galleryOverlay && galleryOverlay.textContent.includes('TEST Solar Project'),
+    galleryOverlay?.textContent || 'No caption');
+}
+
+async function testServicesPage() {
+  group('Services Page (services.html)');
+  const doc = await loadPage('../services.html');
+
+  // Check solar-installation section updated
+  const solarSection = doc.getElementById('solar-installation');
+  assert('Solar installation section exists',
+    !!solarSection, solarSection ? 'Found' : '#solar-installation not found');
+
+  const solarH2 = solarSection?.querySelector('h2');
+  assert('Solar section title updated from admin',
+    solarH2 && solarH2.textContent === 'TEST Solar Service',
+    solarH2?.textContent || 'No h2');
+
+  const solarEyebrow = solarSection?.querySelector('.eyebrow');
+  assert('Solar section category updated',
+    solarEyebrow && solarEyebrow.textContent === 'Solar Energy',
+    solarEyebrow?.textContent || 'No eyebrow');
+
+  // Borehole section
+  const boreholeSection = doc.getElementById('borehole-drilling');
+  const boreholeH2 = boreholeSection?.querySelector('h2');
+  assert('Borehole section title updated',
+    boreholeH2 && boreholeH2.textContent === 'TEST Borehole Service',
+    boreholeH2?.textContent || 'No h2');
+
+  // Phone in header
+  const phone = doc.querySelector('.header-phone');
+  assert('Settings phone applied on services page',
+    phone && phone.textContent.includes('111 222 333'),
+    phone?.textContent?.trim() || 'Not found');
+}
+
+async function testPackagesPage() {
+  group('Packages Page (packages.html)');
+  const doc = await loadPage('../packages.html');
+
+  const cards = doc.querySelectorAll('.package-card');
+  assert('Package cards rendered (active only, not inactive)',
+    cards.length === 2,
+    cards.length + ' cards found (expected 2)');
+
+  const hasImg = doc.querySelector('.package-card .package-img img');
+  assert('Package cards have images',
+    hasImg && hasImg.src.length > 10,
+    hasImg ? hasImg.src.split('/').pop() : 'No image');
+
+  const title = cards[0]?.querySelector('h3');
+  assert('Package name matches admin data',
+    title && title.textContent.includes('TEST'),
+    title?.textContent || 'No h3');
+
+  const price = cards[0]?.querySelector('.package-price');
+  assert('Package price rendered',
+    price && price.textContent.includes('999,000'),
+    price?.textContent?.trim() || 'No price');
+
+  const specs = cards[0]?.querySelectorAll('.package-specs li');
+  assert('Package specs rendered from comma-separated string',
+    specs && specs.length === 3,
+    (specs?.length || 0) + ' specs found (expected 3)');
+}
+
+async function testBlogPage() {
+  group('Blog Page (blog.html)');
+  const doc = await loadPage('../blog.html');
+
+  const cards = doc.querySelectorAll('.blog-card');
+  assert('Blog cards rendered (published only)',
+    cards.length === 1,
+    cards.length + ' cards found (expected 1)');
+
+  const title = cards[0]?.querySelector('h3');
+  assert('Blog title matches admin data',
+    title && title.textContent === 'TEST Blog Post Title',
+    title?.textContent || 'No h3');
+
+  const meta = cards[0]?.querySelector('.blog-meta');
+  assert('Blog meta shows author',
+    meta && meta.textContent.includes('Test Author'),
+    meta?.textContent?.trim() || 'No meta');
+}
+
+async function testFaqPage() {
+  group('FAQ Page (faq.html)');
+  const doc = await loadPage('../faq.html');
+
+  const faqItems = doc.querySelectorAll('.faq-item');
+  assert('FAQ items rendered (published only, not draft)',
+    faqItems.length === 2,
+    faqItems.length + ' items found (expected 2)');
+
+  const firstQ = faqItems[0]?.querySelector('.faq-question');
+  assert('FAQ question text matches admin data',
+    firstQ && firstQ.textContent.includes('TEST FAQ Question One'),
+    firstQ?.textContent?.substring(0, 40) || 'No question');
+
+  const firstA = faqItems[0]?.querySelector('.faq-answer-inner');
+  assert('FAQ answer text matches admin data',
+    firstA && firstA.textContent.includes('TEST FAQ Answer One'),
+    firstA?.textContent?.substring(0, 40) || 'No answer');
+
+  // Category heading
+  const categoryH2 = doc.querySelector('.faq-list h2, .container h2');
+  assert('FAQ category heading rendered',
+    categoryH2 && categoryH2.textContent === 'Testing',
+    categoryH2?.textContent || 'No category heading');
+}
+
+async function testAboutPage() {
+  group('About Page (about.html)');
+  const doc = await loadPage('../about.html');
+
+  const teamCards = doc.querySelectorAll('.team-card');
+  assert('Team cards rendered (active only)',
+    teamCards.length === 2,
+    teamCards.length + ' cards found (expected 2)');
+
+  const teamName = teamCards[0]?.querySelector('h3');
+  assert('Team member name matches admin data',
+    teamName && teamName.textContent === 'TEST Engineer',
+    teamName?.textContent || 'No h3');
+
+  const teamRole = teamCards[0]?.querySelector('.team-role');
+  assert('Team member role matches admin data',
+    teamRole && teamRole.textContent === 'Lead Tester',
+    teamRole?.textContent || 'No role');
+
+  // Settings on about page
+  const phone = doc.querySelector('.header-phone');
+  assert('Settings phone applied on about page',
+    phone && phone.textContent.includes('111 222 333'),
+    phone?.textContent?.trim() || 'Not found');
+}
+
+async function testDataIntegrity() {
+  group('Data Integrity & Edge Cases');
+
+  // Verify localStorage has correct data
+  const services = JSON.parse(localStorage.getItem('ank_services') || '[]');
+  assert('Services saved correctly in localStorage',
+    services.length === 3,
+    services.length + ' services');
+
+  const settings = JSON.parse(localStorage.getItem('ank_settings') || '{}');
+  assert('Settings saved as object (not array)',
+    settings && !Array.isArray(settings) && settings.company === 'TEST COMPANY NAME',
+    typeof settings + ' — company: ' + (settings.company || 'missing'));
+
+  const stats = JSON.parse(localStorage.getItem('ank_stats') || '{}');
+  assert('Stats saved as object (not array)',
+    stats && !Array.isArray(stats) && stats.boreholes === 999,
+    typeof stats + ' — boreholes: ' + (stats.boreholes || 'missing'));
+
+  // Draft filtering
+  const publishedServices = services.filter(s => s.status === 'published');
+  assert('Draft items excluded from published count',
+    publishedServices.length === 2,
+    publishedServices.length + ' published (expected 2)');
+
+  // Slug generation
+  assert('Service slug generated correctly',
+    services[0].slug === 'solar-installation',
+    services[0].slug);
+
+  // Package featured filtering
+  const packages = JSON.parse(localStorage.getItem('ank_packages') || '[]');
+  const featured = packages.filter(p => p.status === 'active' && p.featured);
+  assert('Featured package filtering works',
+    featured.length === 2,
+    featured.length + ' featured active (expected 2)');
+}
+
+// ================================================================
+// RENDER RESULTS
+// ================================================================
+function renderResults() {
+  const container = document.getElementById('results');
+  const groups = {};
+  results.forEach(r => {
+    if (!groups[r.group]) groups[r.group] = [];
+    groups[r.group].push(r);
+  });
+
+  let html = '';
+  Object.entries(groups).forEach(([groupName, tests]) => {
+    html += `<div class="test-group"><h2>${groupName}</h2>`;
+    tests.forEach(t => {
+      const cls = t.pass ? 'pass' : 'fail';
+      html += `<div class="test ${cls}"><div class="icon"></div><span class="test-name">${t.name}</span><span class="test-detail">${t.detail}</span></div>`;
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+
+  const total = results.length;
+  const passed = results.filter(r => r.pass).length;
+  const failed = total - passed;
+
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('passCount').textContent = passed;
+  document.getElementById('failCount').textContent = failed;
+  document.getElementById('passBar').style.width = (total ? (passed / total * 100) : 0) + '%';
+  document.getElementById('summary').style.display = 'flex';
+}
+
+// ================================================================
+// RUN ALL
+// ================================================================
+async function runAllTests() {
+  results = [];
+  document.getElementById('results').innerHTML = '<p style="color:#64748B;">Running tests...</p>';
+  document.getElementById('summary').style.display = 'none';
+
+  // Step 1: Write test data to localStorage (simulates admin saving)
+  writeTestDataToLocalStorage();
+
+  try {
+    // Step 2: Test data integrity first
+    await testDataIntegrity();
+
+    // Step 3: Load each page and verify DOM updates
+    await testIndexPage();
+    await testServicesPage();
+    await testPackagesPage();
+    await testBlogPage();
+    await testFaqPage();
+    await testAboutPage();
+  } catch (e) {
+    group('Error');
+    assert('Test runner error', false, e.message);
+  }
+
+  // Step 4: Render results
+  renderResults();
+
+  // Step 5: Clean up — remove test data so it doesn't pollute real site
+  // (Comment this out if you want to inspect the test data on pages)
+  // clearTestData();
+}
+</script>
+</body>
+</html>
