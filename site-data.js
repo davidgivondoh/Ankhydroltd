@@ -304,6 +304,14 @@
       // Render into the grid container
       container.className = 'grid-3 stagger-children';
 
+      // Default images for package cards
+      const defaultImages = {
+        'hybrid': 'images/solar-panel-night.jpg',
+        'solar': 'images/solar-panel-daytime.jpg',
+        'pump': 'images/solar-pump-worker.jpg',
+        'water': 'images/community-water-access.jpg'
+      };
+
       active.forEach(pkg => {
         const card = document.createElement('article');
         card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
@@ -314,12 +322,18 @@
         const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
         const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-        const pkgImg = pkg.image
-          ? `<div style="margin:-1.5rem -1.5rem 1rem;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;"><img src="${pkg.image}" alt="" style="width:100%;height:160px;object-fit:cover;display:block;"></div>`
-          : '';
+        // Pick image: admin-uploaded, keyword match, or fallback
+        let imgSrc = pkg.image || '';
+        if (!imgSrc) {
+          const nameLower = (pkg.name || '').toLowerCase();
+          for (const [keyword, src] of Object.entries(defaultImages)) {
+            if (nameLower.includes(keyword)) { imgSrc = src; break; }
+          }
+          if (!imgSrc) imgSrc = 'images/solar-panel-daytime.jpg';
+        }
 
         card.innerHTML = `
-          ${pkgImg}
+          <div class="package-img"><img src="${imgSrc}" alt="${this.escapeHtml(pkg.name)}" loading="lazy"></div>
           <h3>${this.escapeHtml(pkg.name)}</h3>
           <div class="package-price">${price} <small>FROM</small></div>
           <ul class="package-specs">${specsList}</ul>
@@ -347,6 +361,14 @@
 
       container.innerHTML = '';
 
+      // Default images for homepage package cards
+      const defaultImages = {
+        'hybrid': 'images/solar-panel-night.jpg',
+        'solar': 'images/solar-panel-daytime.jpg',
+        'pump': 'images/solar-pump-worker.jpg',
+        'water': 'images/community-water-access.jpg'
+      };
+
       featured.forEach(pkg => {
         const card = document.createElement('article');
         card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
@@ -356,7 +378,18 @@
         const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
         const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
+        // Pick image: use admin-uploaded image, or match by name keyword, or fallback
+        let imgSrc = pkg.image || '';
+        if (!imgSrc) {
+          const nameLower = (pkg.name || '').toLowerCase();
+          for (const [keyword, src] of Object.entries(defaultImages)) {
+            if (nameLower.includes(keyword)) { imgSrc = src; break; }
+          }
+          if (!imgSrc) imgSrc = 'images/solar-panel-daytime.jpg';
+        }
+
         card.innerHTML = `
+          <div class="package-img"><img src="${imgSrc}" alt="${this.escapeHtml(pkg.name)}" loading="lazy"></div>
           <h3>${this.escapeHtml(pkg.name)}</h3>
           <div class="package-price">${price} <small>FROM</small></div>
           <ul class="package-specs">${specsList}</ul>
