@@ -1,30 +1,99 @@
 // ===== ANK HYDRO — Site Data Connector =====
-// Reads admin panel data from localStorage and updates the live website
+// Fetches published data from site-data.json and updates the live website
+// Falls back to localStorage for admin previewing locally
 
 (function() {
   'use strict';
 
   const SiteData = {
-    load(key) {
+    data: null,
+
+    async init() {
+      let jsonData = null;
+      let localData = null;
+
+      // Try to load published data from server JSON file
       try {
-        return JSON.parse(localStorage.getItem('ank_' + key) || 'null');
-      } catch { return null; }
+        const resp = await fetch('site-data.json?v=' + Date.now());
+        if (resp.ok) {
+          jsonData = await resp.json();
+        }
+      } catch (e) {
+        // No JSON file available
+      }
+
+      // Also load from localStorage (for admin previewing locally or as supplement)
+      try {
+        localData = this.loadFromLocalStorage();
+      } catch (e) {
+        // localStorage not available
+      }
+
+      // Merge: JSON data takes priority, localStorage fills any gaps
+      if (jsonData && localData) {
+        this.data = jsonData;
+        const keys = ['settings', 'stats', 'testimonials', 'team', 'faq', 'blog', 'packages', 'services', 'projects'];
+        keys.forEach(key => {
+          if (!this.data[key] && localData[key]) {
+            this.data[key] = localData[key];
+          }
+        });
+      } else {
+        this.data = jsonData || localData;
+      }
+
+      if (!this.data) return;
+
+      // Run each apply method independently — one failure won't break the rest
+      const methods = [
+        'applySettings',
+        'applyStats',
+        'applyServices',
+        'applyPackages',
+        'applyPackagesHome',
+        'applyBlog',
+        'applyBlogHome',
+        'applyTestimonials',
+        'applyTeam',
+        'applyFaq',
+        'applyProjects'
+      ];
+
+      methods.forEach(method => {
+        try {
+          this[method]();
+        } catch (e) {
+          console.warn('[SiteData] Error in ' + method + ':', e.message);
+        }
+      });
     },
 
-    init() {
-      this.applySettings();
-      this.applyStats();
-      this.applyTestimonials();
-      this.applyTeam();
-      this.applyFaq();
-      this.applyBlog();
-      this.applyPackages();
+    loadFromLocalStorage() {
+      const keys = ['settings', 'stats', 'testimonials', 'team', 'faq', 'blog', 'packages', 'services', 'projects'];
+      const data = {};
+      let hasData = false;
+      keys.forEach(key => {
+        const val = localStorage.getItem('ank_' + key);
+        if (val) {
+          try {
+            data[key] = JSON.parse(val);
+            hasData = true;
+          } catch (e) {
+            // Skip corrupted data
+          }
+        }
+      });
+      return hasData ? data : null;
+    },
+
+    get(key) {
+      return this.data ? this.data[key] : null;
     },
 
     // ---------- SETTINGS (phone, email, social links, WhatsApp) ----------
     applySettings() {
-      const s = this.load('settings');
-      if (!s) return;
+      const s = this.get('settings');
+      if (!s || typeof s !== 'object') return;
 
       // Phone numbers in header and footer
       if (s.phone) {
@@ -50,7 +119,6 @@
           if (svg) el.prepend(svg);
           el.append(' ' + s.phone);
         });
-        // Footer phone links
         document.querySelectorAll('.footer-contact-item a[href^="tel:"]').forEach(el => {
           el.href = 'tel:' + phoneNum;
           el.textContent = s.phone;
@@ -65,16 +133,17 @@
         });
       }
 
-      // Address
+      // Address — match any span in footer-contact-item that isn't a link
       if (s.address) {
         document.querySelectorAll('.footer-contact-item span').forEach(el => {
-          if (el.textContent.includes('Kitui') || el.textContent.includes('Plaza') || el.textContent.includes('Room')) {
+          // Only target the address span (no link parent)
+          if (!el.closest('a')) {
             el.textContent = s.address;
           }
         });
       }
 
-      // WhatsApp float button and links
+      // WhatsApp float button
       if (s.whatsapp) {
         const waNum = s.whatsapp.replace(/[^0-9]/g, '');
         document.querySelectorAll('.whatsapp-float').forEach(el => {
@@ -84,12 +153,8 @@
 
       // Social media links
       const socialMap = {
-        facebook: 'Facebook',
-        instagram: 'Instagram',
-        tiktok: 'TikTok',
-        linkedin: 'LinkedIn',
-        youtube: 'YouTube',
-        twitter: 'Twitter'
+        facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok',
+        linkedin: 'LinkedIn', youtube: 'YouTube', twitter: 'Twitter'
       };
       Object.entries(socialMap).forEach(([key, label]) => {
         if (s[key]) {
@@ -101,17 +166,13 @@
         }
       });
 
-      // Company name in footer
       if (s.company) {
-        document.querySelectorAll('.footer-brand h3').forEach(el => {
-          el.textContent = s.company;
-        });
+        document.querySelectorAll('.footer-brand h3').forEach(el => { el.textContent = s.company; });
       }
-
-      // Tagline
       if (s.tagline) {
         document.querySelectorAll('.footer-brand > p').forEach(el => {
-          if (el.textContent.includes('Power of technology') || el.textContent.includes('better tomorrow')) {
+          // Target the tagline paragraph (first <p> direct child of footer-brand)
+          if (!el.querySelector('a') && !el.closest('.footer-contact-item')) {
             el.textContent = s.tagline;
           }
         });
@@ -120,8 +181,8 @@
 
     // ---------- STATS / COUNTERS ----------
     applyStats() {
-      const stats = this.load('stats');
-      if (!stats) return;
+      const stats = this.get('stats');
+      if (!stats || typeof stats !== 'object') return;
 
       const mapping = {
         'Boreholes Drilled': stats.boreholes,
@@ -143,9 +204,254 @@
       });
     },
 
+    // ---------- SERVICES ----------
+    applyServices() {
+      const services = this.get('services');
+      if (!services || !Array.isArray(services)) return;
+
+      const published = services
+        .filter(s => s.status === 'published')
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      if (published.length === 0) return;
+
+      // Icon map based on slug
+      const iconMap = {
+        'solar-installation': '#icon-solar',
+        'hybrid-solar': '#icon-battery',
+        'hydrological-survey': '#icon-search',
+        'borehole-drilling': '#icon-drill',
+        'borehole-rehabilitation': '#icon-wrench',
+        'pump-installation': '#icon-droplet',
+        'irrigation': '#icon-sprout',
+        'tank-tower': '#icon-building',
+        'solar-structure': '#icon-building'
+      };
+
+      // --- Homepage service cards (index.html) ---
+      const serviceGrid = document.querySelector('.service-card')?.closest('.grid-3');
+      if (serviceGrid) {
+        serviceGrid.innerHTML = '';
+        published.forEach(svc => {
+          const icon = iconMap[svc.slug] || '#icon-settings';
+          const card = document.createElement('article');
+          card.className = 'service-card fade-up visible';
+          card.innerHTML = `
+            <div class="service-icon"><svg width="26" height="26"><use href="${icon}"/></svg></div>
+            <h3>${this.escapeHtml(svc.title)}</h3>
+            <p>${this.escapeHtml(svc.description || '')}</p>
+            <a class="card-link" href="services.html#${svc.slug}">Learn More <svg width="14" height="14"><use href="#icon-arrow-right"/></svg></a>
+          `;
+          serviceGrid.appendChild(card);
+        });
+      }
+
+      // --- Services page (services.html) — update existing sections ---
+      if (document.title.includes('Services')) {
+        published.forEach(svc => {
+          if (!svc.slug) return;
+          const section = document.getElementById(svc.slug);
+          if (!section) return;
+
+          // Update title
+          const h2 = section.querySelector('h2');
+          if (h2) h2.textContent = svc.title;
+
+          // Update category eyebrow and description
+          const eyebrow = section.querySelector('.eyebrow');
+          if (eyebrow) {
+            eyebrow.textContent = svc.category || '';
+            const desc = eyebrow.parentElement?.querySelector('p:not(.eyebrow)');
+            if (desc && svc.description) desc.textContent = svc.description;
+          }
+
+          // Update image if provided
+          if (svc.image) {
+            const img = section.querySelector('.service-img img, img');
+            if (img) img.src = svc.image;
+          }
+        });
+      }
+    },
+
+    // ---------- PACKAGES (dedicated page) ----------
+    applyPackages() {
+      const packages = this.get('packages');
+      if (!packages || !Array.isArray(packages)) return;
+      // Only run on the Packages page
+      if (!document.title.includes('Package')) return;
+
+      const active = packages
+        .filter(p => p.status === 'active')
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      if (active.length === 0) return;
+
+      const container = document.querySelector('.package-card')?.closest('.grid-3');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      active.forEach(pkg => {
+        const card = document.createElement('article');
+        card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
+
+        const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
+        const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
+
+        const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
+        const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+        const pkgImg = pkg.image
+          ? `<div style="margin:-1.5rem -1.5rem 1rem;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;"><img src="${pkg.image}" alt="" style="width:100%;height:160px;object-fit:cover;display:block;"></div>`
+          : '';
+
+        card.innerHTML = `
+          ${pkgImg}
+          <h3>${this.escapeHtml(pkg.name)}</h3>
+          <div class="package-price">${price} <small>FROM</small></div>
+          <ul class="package-specs">${specsList}</ul>
+          <a class="btn ${pkg.featured ? 'btn-primary' : 'btn-cyan'}" href="quote.html?package=${slug}" style="width:100%;justify-content:center;">Get a Quote</a>
+        `;
+        container.appendChild(card);
+      });
+    },
+
+    // ---------- PACKAGES (Homepage featured) ----------
+    applyPackagesHome() {
+      const packages = this.get('packages');
+      if (!packages || !Array.isArray(packages)) return;
+      // Skip on the dedicated Packages page
+      if (document.title.includes('Package')) return;
+
+      const featured = packages
+        .filter(p => p.status === 'active' && p.featured)
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      if (featured.length === 0) return;
+
+      const container = document.querySelector('.package-card')?.closest('.grid-3');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      featured.forEach(pkg => {
+        const card = document.createElement('article');
+        card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
+
+        const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
+        const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
+        const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
+        const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+        card.innerHTML = `
+          <h3>${this.escapeHtml(pkg.name)}</h3>
+          <div class="package-price">${price} <small>FROM</small></div>
+          <ul class="package-specs">${specsList}</ul>
+          <a class="btn ${pkg.featured ? 'btn-primary' : 'btn-cyan'}" href="quote.html?package=${slug}" style="width:100%;justify-content:center;">Get a Quote</a>
+        `;
+        container.appendChild(card);
+      });
+    },
+
+    // ---------- BLOG (dedicated page) ----------
+    applyBlog() {
+      const blog = this.get('blog');
+      if (!blog || !Array.isArray(blog)) return;
+      // Only run on the Blog page
+      if (!document.title.includes('Blog')) return;
+
+      const published = blog
+        .filter(b => b.status === 'published')
+        .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+      if (published.length === 0) return;
+
+      const blogGrid = document.querySelector('.blog-card')?.closest('.grid-3');
+      if (!blogGrid) return;
+
+      blogGrid.innerHTML = '';
+
+      published.forEach(post => {
+        const iconMap = {
+          'Solar Energy': '\u2600\uFE0F', 'Solar Energy Guide': '\u2600\uFE0F',
+          'Borehole': '\uD83D\uDCA7', 'Borehole Drilling Tips': '\uD83D\uDCA7', 'Borehole & Water': '\uD83D\uDCA7',
+          'Irrigation': '\uD83C\uDF31', 'Irrigation & Farming': '\uD83C\uDF31',
+          'Water Conservation': '\u26CF\uFE0F', 'Company News': '\uD83D\uDCA1'
+        };
+        const icon = iconMap[post.category] || '\uD83D\uDCDD';
+        const thumb = post.image
+          ? `<div class="blog-thumb" style="padding:0;overflow:hidden;"><img src="${post.image}" alt="" style="width:100%;height:100%;object-fit:cover;"></div>`
+          : `<div class="blog-thumb">${icon}</div>`;
+
+        const postSlug = post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const link = document.createElement('a');
+        link.href = 'blog-post.html?slug=' + postSlug;
+        link.className = 'blog-card fade-up visible';
+        link.innerHTML = `
+          ${thumb}
+          <div class="blog-body">
+            <p class="blog-category">${this.escapeHtml(post.category || 'General')}</p>
+            <h3>${this.escapeHtml(post.title)}</h3>
+            <p>${this.escapeHtml((post.content || '').substring(0, 150))}${(post.content || '').length > 150 ? '...' : ''}</p>
+            <p class="blog-meta">${post.date || ''} &middot; ${this.escapeHtml(post.author || 'ANK Hydro')}</p>
+          </div>
+        `;
+        blogGrid.appendChild(link);
+      });
+    },
+
+    // ---------- BLOG (Homepage highlights) ----------
+    applyBlogHome() {
+      const blog = this.get('blog');
+      if (!blog || !Array.isArray(blog)) return;
+      // Skip on the dedicated Blog page
+      if (document.title.includes('Blog')) return;
+
+      const published = blog
+        .filter(b => b.status === 'published')
+        .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+        .slice(0, 3);
+
+      if (published.length === 0) return;
+
+      const blogGrid = document.querySelector('.blog-card')?.closest('.grid-3');
+      if (!blogGrid) return;
+
+      blogGrid.innerHTML = '';
+
+      published.forEach(post => {
+        const iconMap = {
+          'Solar Energy': '\u2600\uFE0F', 'Solar Energy Guide': '\u2600\uFE0F',
+          'Borehole': '\uD83D\uDCA7', 'Borehole Drilling Tips': '\uD83D\uDCA7', 'Borehole & Water': '\uD83D\uDCA7',
+          'Irrigation': '\uD83C\uDF31', 'Irrigation & Farming': '\uD83C\uDF31',
+          'Water Conservation': '\u26CF\uFE0F', 'Company News': '\uD83D\uDCA1'
+        };
+        const icon = iconMap[post.category] || '\uD83D\uDCDD';
+        const thumb = post.image
+          ? `<div class="blog-thumb" style="padding:0;overflow:hidden;"><img src="${post.image}" alt="" style="width:100%;height:100%;object-fit:cover;"></div>`
+          : `<div class="blog-thumb">${icon}</div>`;
+
+        const postSlug = post.slug || post.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const link = document.createElement('a');
+        link.href = 'blog-post.html?slug=' + postSlug;
+        link.className = 'blog-card fade-up visible';
+        link.innerHTML = `
+          ${thumb}
+          <div class="blog-body">
+            <p class="blog-category">${this.escapeHtml(post.category || 'General')}</p>
+            <h3>${this.escapeHtml(post.title)}</h3>
+            <p>${this.escapeHtml((post.content || '').substring(0, 150))}${(post.content || '').length > 150 ? '...' : ''}</p>
+            <p class="blog-meta">${post.date || ''} &middot; ${this.escapeHtml(post.author || 'ANK Hydro')}</p>
+          </div>
+        `;
+        blogGrid.appendChild(link);
+      });
+    },
+
     // ---------- TESTIMONIALS ----------
     applyTestimonials() {
-      const testimonials = this.load('testimonials');
+      const testimonials = this.get('testimonials');
       if (!testimonials || !Array.isArray(testimonials)) return;
 
       const published = testimonials
@@ -154,19 +460,20 @@
 
       if (published.length === 0) return;
 
-      // Find testimonials container on homepage
       const containers = document.querySelectorAll('.testimonial-card');
       if (containers.length === 0) return;
 
       const parent = containers[0].parentElement;
       if (!parent) return;
 
-      // Clear existing testimonials
       parent.innerHTML = '';
 
       published.forEach(t => {
         const initials = t.client ? t.client.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '??';
-        const stars = '<svg width="14" height="14"><use href="icons.svg#icon-star"/></svg>'.repeat(t.rating || 5);
+        const stars = '<svg width="14" height="14"><use href="#icon-star"/></svg>'.repeat(t.rating || 5);
+        const avatar = t.image
+          ? `<img src="${t.image}" alt="${this.escapeHtml(t.client)}" class="testimonial-avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;">`
+          : `<div class="testimonial-avatar">${initials}</div>`;
 
         const card = document.createElement('div');
         card.className = 'testimonial-card fade-up visible';
@@ -174,10 +481,10 @@
           <div class="testimonial-stars">${stars}</div>
           <p class="testimonial-text">${this.escapeHtml(t.text)}</p>
           <div class="testimonial-author">
-            <div class="testimonial-avatar">${initials}</div>
+            ${avatar}
             <div class="testimonial-info">
               <strong>${this.escapeHtml(t.client)}</strong>
-              <span>${this.escapeHtml(t.location || '')}${t.service ? ' — ' + this.escapeHtml(t.service) : ''}</span>
+              <span>${this.escapeHtml(t.location || '')}${t.service ? ' \u2014 ' + this.escapeHtml(t.service) : ''}</span>
             </div>
           </div>
         `;
@@ -187,7 +494,7 @@
 
     // ---------- TEAM ----------
     applyTeam() {
-      const team = this.load('team');
+      const team = this.get('team');
       if (!team || !Array.isArray(team)) return;
 
       const active = team
@@ -205,10 +512,13 @@
       parent.innerHTML = '';
 
       active.forEach(t => {
+        const avatar = t.image
+          ? `<img src="${t.image}" alt="${this.escapeHtml(t.name)}" class="team-avatar-img" style="width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 auto 1rem;">`
+          : `<div class="team-avatar">\uD83D\uDC64</div>`;
         const card = document.createElement('div');
         card.className = 'team-card fade-up visible';
         card.innerHTML = `
-          <div class="team-avatar">👤</div>
+          ${avatar}
           <h3>${this.escapeHtml(t.name)}</h3>
           <p class="team-role">${this.escapeHtml(t.role)}</p>
           <p>${this.escapeHtml(t.bio || '')}</p>
@@ -219,20 +529,18 @@
 
     // ---------- FAQ ----------
     applyFaq() {
-      const faq = this.load('faq');
+      const faq = this.get('faq');
       if (!faq || !Array.isArray(faq)) return;
 
       const published = faq
         .filter(f => f.status === 'published')
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-      // Only override if admin has added NEW items beyond the defaults (3)
-      if (published.length <= 3) return;
+      if (published.length === 0) return;
 
       const container = document.querySelector('.faq-item')?.closest('.container');
       if (!container) return;
 
-      // Group by category
       const groups = {};
       published.forEach(f => {
         const cat = f.category || 'General';
@@ -240,7 +548,6 @@
         groups[cat].push(f);
       });
 
-      // Clear existing FAQ content (keep the container)
       container.innerHTML = '';
 
       Object.entries(groups).forEach(([category, items]) => {
@@ -257,7 +564,6 @@
             <div class="faq-answer"><div class="faq-answer-inner">${this.escapeHtml(item.answer)}</div></div>
           `;
 
-          // Attach click handler
           const question = faqEl.querySelector('.faq-question');
           const answer = faqEl.querySelector('.faq-answer');
           question.addEventListener('click', () => {
@@ -278,88 +584,38 @@
       });
     },
 
-    // ---------- BLOG ----------
-    applyBlog() {
-      const blog = this.load('blog');
-      if (!blog || !Array.isArray(blog)) return;
+    // ---------- PROJECTS / GALLERY ----------
+    applyProjects() {
+      const projects = this.get('projects');
+      if (!projects || !Array.isArray(projects)) return;
 
-      const published = blog
-        .filter(b => b.status === 'published')
+      const published = projects
+        .filter(p => p.status === 'published')
         .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
       if (published.length === 0) return;
 
-      // Blog page — replace entire grid
-      const blogGrid = document.querySelector('.blog-card')?.closest('.grid-3');
-      if (!blogGrid || !document.querySelector('.page-hero')) return;
-      // Only apply on blog.html page
-      const pageTitle = document.title;
-      if (!pageTitle.includes('Blog')) return;
+      const gallery = document.querySelector('.gallery-grid');
+      if (!gallery) return;
 
-      blogGrid.innerHTML = '';
+      gallery.innerHTML = '';
 
-      published.forEach(post => {
-        const card = document.createElement('article');
-        card.className = 'blog-card fade-up visible';
+      published.forEach(proj => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item fade-up visible';
+        item.setAttribute('onclick', 'openLightbox(this)');
 
-        const iconMap = {
-          'Solar Energy': '☀️', 'Solar Energy Guide': '☀️',
-          'Borehole': '💧', 'Borehole Drilling Tips': '💧', 'Borehole & Water': '💧',
-          'Irrigation': '🌱', 'Irrigation & Farming': '🌱',
-          'Water Conservation': '⛏️',
-          'Company News': '💡'
-        };
-        const icon = iconMap[post.category] || '📝';
+        const img = proj.image
+          ? `<img src="${proj.image}" alt="${this.escapeHtml(proj.title)}" loading="lazy">`
+          : `<img src="images/solar-panel-daytime.jpg" alt="${this.escapeHtml(proj.title)}" loading="lazy">`;
 
-        card.innerHTML = `
-          <div class="blog-thumb">${icon}</div>
-          <div class="blog-body">
-            <p class="blog-category">${this.escapeHtml(post.category || 'General')}</p>
-            <h3>${this.escapeHtml(post.title)}</h3>
-            <p>${this.escapeHtml((post.content || '').substring(0, 150))}${(post.content || '').length > 150 ? '...' : ''}</p>
-            <p class="blog-meta">${post.date || ''} &middot; ${this.escapeHtml(post.author || 'ANK Hydro')}</p>
-          </div>
+        const caption = `${this.escapeHtml(proj.title)}${proj.location ? ' \u2014 ' + this.escapeHtml(proj.location) : ''}`;
+
+        item.innerHTML = `
+          ${img}
+          <div class="gallery-overlay"><p>${caption}</p></div>
         `;
-        blogGrid.appendChild(card);
-      });
-    },
-
-    // ---------- PACKAGES ----------
-    applyPackages() {
-      const packages = this.load('packages');
-      if (!packages || !Array.isArray(packages)) return;
-
-      const active = packages
-        .filter(p => p.status === 'active')
-        .sort((a, b) => (a.order || 0) - (b.order || 0));
-
-      if (active.length === 0) return;
-
-      // Only apply on packages.html
-      if (!document.title.includes('Package')) return;
-
-      const container = document.querySelector('.package-card')?.closest('.grid-3');
-      if (!container) return;
-
-      container.innerHTML = '';
-
-      active.forEach(pkg => {
-        const card = document.createElement('article');
-        card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
-
-        const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
-        const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
-
-        const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
-        const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-        card.innerHTML = `
-          <h3>${this.escapeHtml(pkg.name)}</h3>
-          <div class="package-price">${price} <small>FROM</small></div>
-          <ul class="package-specs">${specsList}</ul>
-          <a class="btn ${pkg.featured ? 'btn-primary' : 'btn-cyan'}" href="quote.html?package=${slug}" style="width:100%;justify-content:center;">Get a Quote</a>
-        `;
-        container.appendChild(card);
+        gallery.appendChild(item);
       });
     },
 

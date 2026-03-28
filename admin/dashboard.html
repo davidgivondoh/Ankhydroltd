@@ -9,6 +9,9 @@
 </head>
 <body class="admin-body">
 
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -22,11 +25,13 @@
       <a href="#" class="nav-item active" data-section="dashboard">
         <span class="nav-icon">📊</span> Dashboard
       </a>
+
+      <div class="sidebar-label">Content</div>
       <a href="#" class="nav-item" data-section="services">
         <span class="nav-icon">⚙️</span> Services
       </a>
       <a href="#" class="nav-item" data-section="packages">
-        <span class="nav-icon">💰</span> Packages
+        <span class="nav-icon">📦</span> Packages
       </a>
       <a href="#" class="nav-item" data-section="projects">
         <span class="nav-icon">🏗️</span> Projects
@@ -34,6 +39,8 @@
       <a href="#" class="nav-item" data-section="blog">
         <span class="nav-icon">📝</span> Blog Posts
       </a>
+
+      <div class="sidebar-label">Inbox</div>
       <a href="#" class="nav-item" data-section="quotes">
         <span class="nav-icon">📩</span> Quote Requests
         <span class="badge" id="quotesBadge"></span>
@@ -42,6 +49,8 @@
         <span class="nav-icon">💬</span> Messages
         <span class="badge" id="messagesBadge"></span>
       </a>
+
+      <div class="sidebar-label">Website</div>
       <a href="#" class="nav-item" data-section="testimonials">
         <span class="nav-icon">⭐</span> Testimonials
       </a>
@@ -71,6 +80,8 @@
       <button class="sidebar-toggle" id="sidebarToggle">☰</button>
       <h1 id="pageTitle">Dashboard</h1>
       <div class="topbar-right">
+        <button class="btn-admin btn-admin-outline btn-admin-sm" onclick="AdminApp.downloadSiteData()" title="Download site-data.json for manual upload">📥 Download JSON</button>
+        <button class="btn-admin btn-admin-success" id="publishBtn" onclick="AdminApp.publishToLive()">🚀 Publish to Live</button>
         <span id="adminName">Admin</span>
       </div>
     </header>

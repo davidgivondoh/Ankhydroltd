@@ -1,6 +1,80 @@
 // ===== ANK HYDRO ADMIN PANEL — Core JavaScript =====
 
 const AdminApp = {
+  // ---------- IMAGE UPLOAD HELPER ----------
+  imageFieldHtml(label, fieldId, currentUrl) {
+    const preview = currentUrl ? `<img src="../${currentUrl}" style="max-width:120px;max-height:80px;border-radius:8px;margin-top:.5rem;display:block;" id="${fieldId}-preview">` : `<img id="${fieldId}-preview" style="max-width:120px;max-height:80px;border-radius:8px;margin-top:.5rem;display:none;">`;
+    return `
+      <div class="form-group">
+        <label>${label}</label>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <input type="file" id="${fieldId}" accept="image/*" style="flex:1;" onchange="AdminApp.previewImage('${fieldId}')">
+          ${currentUrl ? `<button type="button" class="btn-admin btn-admin-sm btn-admin-danger" onclick="AdminApp.clearImageField('${fieldId}')">Remove</button>` : ''}
+        </div>
+        <input type="hidden" id="${fieldId}-url" value="${currentUrl || ''}">
+        ${preview}
+      </div>
+    `;
+  },
+
+  previewImage(fieldId) {
+    const input = document.getElementById(fieldId);
+    const preview = document.getElementById(fieldId + '-preview');
+    if (input.files && input.files[0] && preview) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  },
+
+  clearImageField(fieldId) {
+    const input = document.getElementById(fieldId);
+    const preview = document.getElementById(fieldId + '-preview');
+    const urlInput = document.getElementById(fieldId + '-url');
+    if (input) input.value = '';
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    if (urlInput) urlInput.value = '';
+  },
+
+  async uploadImage(fieldId, section, itemId) {
+    const input = document.getElementById(fieldId);
+    if (!input || !input.files || !input.files[0]) {
+      // Return existing URL if no new file selected
+      const urlInput = document.getElementById(fieldId + '-url');
+      return urlInput ? urlInput.value : '';
+    }
+
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    formData.append('section', section);
+    formData.append('item_id', String(itemId));
+
+    const auth = JSON.parse(localStorage.getItem(this.DB_KEYS.auth) || '{}');
+    const password = localStorage.getItem(this.DB_KEYS.password) || 'admin123';
+    formData.append('auth_token', btoa(auth.email + ':' + password));
+
+    try {
+      const resp = await fetch('../upload-image.php', {
+        method: 'POST',
+        headers: { 'X-Auth-Token': btoa(auth.email + ':' + password) },
+        body: formData
+      });
+      const result = await resp.json();
+      if (result.success) {
+        return result.url;
+      } else {
+        this.toast('Image upload failed: ' + (result.error || 'Unknown error'), 'error');
+        return '';
+      }
+    } catch (err) {
+      this.toast('Image upload error: ' + err.message, 'error');
+      return '';
+    }
+  },
+
   // ---------- DATA STORE (localStorage) ----------
   DB_KEYS: {
     auth: 'ank_admin_auth',
@@ -221,15 +295,26 @@ const AdminApp = {
     };
     document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
 
-    // Close mobile sidebar
+    // Close mobile sidebar + overlay
     document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebarOverlay')?.classList.remove('show');
   },
 
   setupSidebar() {
     const toggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
     if (toggle && sidebar) {
-      toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('show');
+      });
+    }
+    if (overlay && sidebar) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+      });
     }
   },
 
@@ -349,6 +434,11 @@ const AdminApp = {
     this.loadSettings();
   },
 
+  imgThumb(url) {
+    if (!url) return '<span style="color:var(--gray-400);font-size:.75rem;">No image</span>';
+    return `<img src="../${url}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;">`;
+  },
+
   renderServices() {
     const items = this.load('services').sort((a, b) => a.order - b.order);
     const tbody = document.getElementById('servicesTable');
@@ -356,7 +446,7 @@ const AdminApp = {
     tbody.innerHTML = items.map(s => `
       <tr>
         <td>${s.order}</td>
-        <td><strong>${s.title}</strong></td>
+        <td style="display:flex;align-items:center;gap:.5rem;">${this.imgThumb(s.image)} <strong>${s.title}</strong></td>
         <td>${s.category}</td>
         <td><span class="status status-${s.status}">${s.status}</span></td>
         <td class="actions">
@@ -373,7 +463,7 @@ const AdminApp = {
     if (!tbody) return;
     tbody.innerHTML = items.map(p => `
       <tr>
-        <td><strong>${p.name}</strong></td>
+        <td style="display:flex;align-items:center;gap:.5rem;">${this.imgThumb(p.image)} <strong>${p.name}</strong></td>
         <td>${p.priceLabel}</td>
         <td>${p.category}</td>
         <td><span class="status status-${p.status}">${p.status}</span></td>
@@ -419,7 +509,7 @@ const AdminApp = {
     }
     tbody.innerHTML = items.map(b => `
       <tr>
-        <td><strong>${b.title}</strong></td>
+        <td style="display:flex;align-items:center;gap:.5rem;">${this.imgThumb(b.image)} <strong>${b.title}</strong></td>
         <td>${b.category}</td>
         <td>${b.author || 'Admin'}</td>
         <td>${b.date}</td>
@@ -503,7 +593,7 @@ const AdminApp = {
     if (!tbody) return;
     tbody.innerHTML = items.map(t => `
       <tr>
-        <td><strong>${t.client}</strong></td>
+        <td style="display:flex;align-items:center;gap:.5rem;">${this.imgThumb(t.image)} <strong>${t.client}</strong></td>
         <td>${t.location}</td>
         <td>${t.service}</td>
         <td>${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</td>
@@ -522,7 +612,7 @@ const AdminApp = {
     if (!tbody) return;
     tbody.innerHTML = items.map(t => `
       <tr>
-        <td><strong>${t.name}</strong></td>
+        <td style="display:flex;align-items:center;gap:.5rem;">${this.imgThumb(t.image)} <strong>${t.name}</strong></td>
         <td>${t.role}</td>
         <td><span class="status status-${t.status}">${t.status}</span></td>
         <td class="actions">
@@ -571,6 +661,7 @@ const AdminApp = {
           <div class="form-group"><label>Display Order</label><input type="number" id="m-order" value="${item?.order || ''}" /></div>
         </div>
         <div class="form-group"><label>Short Description</label><textarea id="m-description">${item?.description || ''}</textarea></div>
+        ${this.imageFieldHtml('Service Image', 'm-image', item?.image)}
         <div class="form-group"><label>Status</label><select id="m-status"><option>published</option><option>draft</option></select></div>
       `,
       package: () => `
@@ -584,6 +675,7 @@ const AdminApp = {
           <div class="form-group"><label>Display Order</label><input type="number" id="m-order" value="${item?.order || ''}" /></div>
         </div>
         <div class="form-group"><label>Specifications (comma-separated)</label><textarea id="m-specs">${item?.specs || ''}</textarea></div>
+        ${this.imageFieldHtml('Package Image', 'm-image', item?.image)}
         <div class="form-row">
           <div class="form-group"><label>Status</label><select id="m-status"><option>active</option><option>inactive</option><option>coming soon</option></select></div>
           <div class="form-group"><label>Featured</label><select id="m-featured"><option value="false">No</option><option value="true">Yes</option></select></div>
@@ -596,6 +688,8 @@ const AdminApp = {
           <div class="form-group"><label>Service Type</label><select id="m-service"><option>Solar Installation</option><option>Hybrid Solar</option><option>Borehole Drilling</option><option>Borehole Rehabilitation</option><option>Pump Installation</option><option>Irrigation</option><option>Tank Tower</option><option>Solar Structure</option></select></div>
         </div>
         <div class="form-group"><label>Description</label><textarea id="m-description">${item?.description || ''}</textarea></div>
+        ${this.imageFieldHtml('Before Image', 'm-image', item?.image)}
+        ${this.imageFieldHtml('After Image', 'm-image2', item?.image2)}
         <div class="form-row">
           <div class="form-group"><label>Date Completed</label><input type="date" id="m-date" value="${item?.date || ''}" /></div>
           <div class="form-group"><label>Status</label><select id="m-status"><option>published</option><option>draft</option></select></div>
@@ -609,6 +703,7 @@ const AdminApp = {
           <div class="form-group"><label>Category</label><select id="m-category"><option>Solar Energy Guide</option><option>Borehole Drilling Tips</option><option>Irrigation & Farming</option><option>Water Conservation</option><option>Company News</option><option>Product Reviews</option></select></div>
           <div class="form-group"><label>Author</label><input type="text" id="m-author" value="${item?.author || 'Admin'}" /></div>
         </div>
+        ${this.imageFieldHtml('Featured Image', 'm-image', item?.image)}
         <div class="form-group"><label>Content</label><textarea id="m-content" style="min-height:200px;">${item?.content || ''}</textarea></div>
         <div class="form-row">
           <div class="form-group"><label>Date</label><input type="date" id="m-date" value="${item?.date || new Date().toISOString().split('T')[0]}" /></div>
@@ -626,6 +721,7 @@ const AdminApp = {
           <div class="form-group"><label>Rating (1-5)</label><input type="number" id="m-rating" min="1" max="5" value="${item?.rating || 5}" /></div>
         </div>
         <div class="form-group"><label>Testimonial Text</label><textarea id="m-text">${item?.text || ''}</textarea></div>
+        ${this.imageFieldHtml('Client Photo', 'm-image', item?.image)}
         <div class="form-row">
           <div class="form-group"><label>Display Order</label><input type="number" id="m-order" value="${item?.order || ''}" /></div>
           <div class="form-group"><label>Status</label><select id="m-status"><option>published</option><option>draft</option></select></div>
@@ -637,6 +733,7 @@ const AdminApp = {
           <div class="form-group"><label>Role / Title</label><input type="text" id="m-role" value="${item?.role || ''}" /></div>
         </div>
         <div class="form-group"><label>Bio</label><textarea id="m-bio">${item?.bio || ''}</textarea></div>
+        ${this.imageFieldHtml('Profile Photo', 'm-image', item?.image)}
         <div class="form-row">
           <div class="form-group"><label>Display Order</label><input type="number" id="m-order" value="${item?.order || ''}" /></div>
           <div class="form-group"><label>Status</label><select id="m-status"><option>active</option><option>inactive</option></select></div>
@@ -673,9 +770,11 @@ const AdminApp = {
     this.editingType = null;
   },
 
-  saveModal() {
+  async saveModal() {
     const type = this.editingType;
     const val = (id) => document.getElementById(id)?.value?.trim() || '';
+    const saveBtn = document.getElementById('modalSaveBtn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
 
     const keyMap = {
       service: 'services', package: 'packages', project: 'projects',
@@ -690,6 +789,19 @@ const AdminApp = {
     } else {
       item = { id: this.nextId(storeKey) };
       items.push(item);
+    }
+
+    // Upload images if present (except faq which has no image)
+    if (type !== 'faq') {
+      const imgUrl = await this.uploadImage('m-image', type, item.id);
+      if (imgUrl) item.image = imgUrl;
+      else if (imgUrl === '' && !document.getElementById('m-image-url')?.value) item.image = '';
+    }
+    // Project has before/after images
+    if (type === 'project') {
+      const img2Url = await this.uploadImage('m-image2', type, item.id + '-after');
+      if (img2Url) item.image2 = img2Url;
+      else if (img2Url === '' && !document.getElementById('m-image2-url')?.value) item.image2 = '';
     }
 
     // Populate fields based on type
@@ -763,6 +875,7 @@ const AdminApp = {
     this.renderAll();
     this.renderDashboard();
     this.toast('Saved successfully!', 'success');
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
   },
 
   editItem(type, id) {
@@ -972,6 +1085,90 @@ const AdminApp = {
     if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
     return `${Math.floor(seconds / 86400)}d ago`;
+  },
+
+  // ---------- GATHER SITE DATA ----------
+  gatherSiteData() {
+    return {
+      settings: this.loadSafe('settings'),
+      stats: this.loadSafe('stats'),
+      services: this.loadSafe('services'),
+      packages: this.loadSafe('packages'),
+      testimonials: this.loadSafe('testimonials'),
+      team: this.loadSafe('team'),
+      faq: this.loadSafe('faq'),
+      blog: this.loadSafe('blog'),
+      projects: this.loadSafe('projects'),
+      published_at: new Date().toISOString()
+    };
+  },
+
+  // Load that handles both arrays and objects (stats/settings are objects)
+  loadSafe(key) {
+    try {
+      const raw = localStorage.getItem(this.DB_KEYS[key]);
+      if (!raw) return key === 'stats' || key === 'settings' ? {} : [];
+      return JSON.parse(raw);
+    } catch (e) {
+      return key === 'stats' || key === 'settings' ? {} : [];
+    }
+  },
+
+  // ---------- PUBLISH TO LIVE SITE ----------
+  async publishToLive() {
+    const publishBtn = document.getElementById('publishBtn');
+    if (publishBtn) {
+      publishBtn.disabled = true;
+      publishBtn.textContent = 'Publishing...';
+    }
+
+    const siteData = this.gatherSiteData();
+
+    try {
+      // Auth token from current session
+      const auth = JSON.parse(localStorage.getItem(this.DB_KEYS.auth) || '{}');
+      const password = localStorage.getItem(this.DB_KEYS.password) || 'admin123';
+      siteData.auth_token = btoa(auth.email + ':' + password);
+
+      const resp = await fetch('../save-data.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(siteData)
+      });
+
+      const result = await resp.json();
+
+      if (resp.ok && result.success) {
+        this.logActivity('Published all content to live site', '🚀');
+        this.toast('Published to live site successfully!', 'success');
+      } else {
+        this.toast('Publish failed: ' + (result.error || 'Unknown error') + ' — Use "Download JSON" as fallback.', 'error');
+      }
+    } catch (err) {
+      this.toast('Server unavailable. Use "Download JSON" to publish manually.', 'error');
+    }
+
+    if (publishBtn) {
+      publishBtn.disabled = false;
+      publishBtn.textContent = '🚀 Publish to Live';
+    }
+  },
+
+  // ---------- DOWNLOAD JSON (fallback for no-PHP environments) ----------
+  downloadSiteData() {
+    const siteData = this.gatherSiteData();
+    delete siteData.auth_token;
+    const blob = new Blob([JSON.stringify(siteData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'site-data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    this.logActivity('Downloaded site-data.json for manual upload', '📥');
+    this.toast('Downloaded site-data.json — upload it to your website root folder.', 'success');
   },
 
   // ---------- TOAST ----------
