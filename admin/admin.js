@@ -253,7 +253,13 @@ const AdminApp = {
 
   // ---------- STORAGE HELPERS ----------
   load(key) {
-    return JSON.parse(localStorage.getItem(this.DB_KEYS[key]) || '[]');
+    try {
+      const raw = localStorage.getItem(this.DB_KEYS[key]);
+      if (!raw) return (key === 'stats' || key === 'settings') ? {} : [];
+      return JSON.parse(raw);
+    } catch (e) {
+      return (key === 'stats' || key === 'settings') ? {} : [];
+    }
   },
   save(key, data) {
     localStorage.setItem(this.DB_KEYS[key], JSON.stringify(data));
@@ -907,6 +913,7 @@ const AdminApp = {
       item.status = newStatus;
       this.save(storeKey, items);
       this.logActivity(`Updated ${storeKey} status to "${newStatus}" for ${item.name || item.title || 'item'}`, '🔄');
+      this.renderAll();
       this.renderDashboard();
     }
   },

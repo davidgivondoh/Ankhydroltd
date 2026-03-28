@@ -287,10 +287,22 @@
 
       if (active.length === 0) return;
 
-      const container = document.querySelector('.package-card')?.closest('.grid-3');
+      // Find the main package grid — could be .grid-3 or .grid-4
+      const firstCard = document.querySelector('.package-card');
+      const container = firstCard?.closest('.grid-3') || firstCard?.closest('.grid-4');
       if (!container) return;
 
-      container.innerHTML = '';
+      // Clear ALL package sections on the page (featured hero + grid)
+      const allPackageSections = document.querySelectorAll('.package-card');
+      const parents = new Set();
+      allPackageSections.forEach(card => {
+        const p = card.parentElement;
+        if (p) parents.add(p);
+      });
+      parents.forEach(p => { p.innerHTML = ''; });
+
+      // Render into the grid container
+      container.className = 'grid-3 stagger-children';
 
       active.forEach(pkg => {
         const card = document.createElement('article');
@@ -538,7 +550,8 @@
 
       if (published.length === 0) return;
 
-      const container = document.querySelector('.faq-item')?.closest('.container');
+      // Target .faq-list wrapper if it exists, otherwise fall back to .container
+      const container = document.querySelector('.faq-list') || document.querySelector('.faq-item')?.closest('.container');
       if (!container) return;
 
       const groups = {};
