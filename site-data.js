@@ -287,25 +287,69 @@
 
       if (active.length === 0) return;
 
-      // Find the main package grid — could be .grid-3 or .grid-4
-      const firstCard = document.querySelector('.package-card');
-      const container = firstCard?.closest('.grid-3') || firstCard?.closest('.grid-4');
-      if (!container) return;
+      // Update existing cards in-place first (images, titles, prices, specs)
+      const existingCards = document.querySelectorAll('.package-card');
+      existingCards.forEach((card, i) => {
+        if (!active[i]) return;
+        const pkg = active[i];
 
-      // Clear ALL package sections on the page (featured hero + grid)
-      const allPackageSections = document.querySelectorAll('.package-card');
-      const parents = new Set();
-      allPackageSections.forEach(card => {
-        const p = card.parentElement;
-        if (p) parents.add(p);
+        // Update image
+        const img = card.querySelector('.package-img img');
+        if (img) {
+          const imgSrc = this.getPackageImage(pkg);
+          img.src = imgSrc;
+          img.alt = pkg.name || '';
+        }
+
+        // Update title
+        const h3 = card.querySelector('h3');
+        if (h3) h3.textContent = pkg.name || '';
+
+        // Update price
+        const price = card.querySelector('.package-price');
+        if (price) {
+          const priceText = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
+          price.innerHTML = priceText + ' <small>FROM</small>';
+        }
+
+        // Update specs
+        const specsList = card.querySelector('.package-specs');
+        if (specsList && pkg.specs) {
+          const specs = pkg.specs.split(',').map(s => s.trim()).filter(Boolean);
+          specsList.innerHTML = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
+        }
       });
-      parents.forEach(p => { p.innerHTML = ''; });
 
-      // Render into the grid container
-      container.className = 'grid-3 stagger-children';
+      // If admin has MORE packages than existing cards, add extras to the grid
+      if (active.length > existingCards.length) {
+        const grid = document.querySelector('.grid-4') || document.querySelector('.grid-3');
+        if (grid) {
+          for (let i = existingCards.length; i < active.length; i++) {
+            const pkg = active[i];
+            const card = document.createElement('article');
+            card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
+            const imgSrc = this.getPackageImage(pkg);
+            const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
+            const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
+            const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
+            const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+            card.innerHTML = `
+              <div class="package-img"><img src="${imgSrc}" alt="${this.escapeHtml(pkg.name)}" loading="lazy"></div>
+              <h3>${this.escapeHtml(pkg.name)}</h3>
+              <div class="package-price">${price} <small>FROM</small></div>
+              <ul class="package-specs">${specsList}</ul>
+              <a class="btn ${pkg.featured ? 'btn-primary' : 'btn-cyan'}" href="quote.html?package=${slug}" style="width:100%;justify-content:center;">Get a Quote</a>
+            `;
+            grid.appendChild(card);
+          }
+        }
+      }
+    },
 
-      // Default images for package cards by name keyword
-      const defaultImages = {
+    // Helper: resolve package image (admin-uploaded > keyword match > fallback)
+    getPackageImage(pkg) {
+      if (pkg.image) return pkg.image;
+      const defaults = {
         'hybrid': 'images/pkg-hybrid-solar.jpg',
         '200w': 'images/pkg-pump-200w.jpg',
         '500w': 'images/pkg-pump-500w.jpg',
@@ -314,36 +358,11 @@
         'pump': 'images/pkg-pump-750w.jpg',
         'solar': 'images/pkg-hybrid-solar.jpg'
       };
-
-      active.forEach(pkg => {
-        const card = document.createElement('article');
-        card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
-
-        const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
-        const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
-
-        const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
-        const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-        // Pick image: admin-uploaded, keyword match, or fallback
-        let imgSrc = pkg.image || '';
-        if (!imgSrc) {
-          const nameLower = (pkg.name || '').toLowerCase();
-          for (const [keyword, src] of Object.entries(defaultImages)) {
-            if (nameLower.includes(keyword)) { imgSrc = src; break; }
-          }
-          if (!imgSrc) imgSrc = 'images/solar-panel-daytime.jpg';
-        }
-
-        card.innerHTML = `
-          <div class="package-img"><img src="${imgSrc}" alt="${this.escapeHtml(pkg.name)}" loading="lazy"></div>
-          <h3>${this.escapeHtml(pkg.name)}</h3>
-          <div class="package-price">${price} <small>FROM</small></div>
-          <ul class="package-specs">${specsList}</ul>
-          <a class="btn ${pkg.featured ? 'btn-primary' : 'btn-cyan'}" href="quote.html?package=${slug}" style="width:100%;justify-content:center;">Get a Quote</a>
-        `;
-        container.appendChild(card);
-      });
+      const nameLower = (pkg.name || '').toLowerCase();
+      for (const [keyword, src] of Object.entries(defaults)) {
+        if (nameLower.includes(keyword)) return src;
+      }
+      return 'images/solar-panel-daytime.jpg';
     },
 
     // ---------- PACKAGES (Homepage featured) ----------
@@ -364,35 +383,15 @@
 
       container.innerHTML = '';
 
-      // Default images for homepage package cards by name keyword
-      const defaultImages = {
-        'hybrid': 'images/pkg-hybrid-solar.jpg',
-        '200w': 'images/pkg-pump-200w.jpg',
-        '500w': 'images/pkg-pump-500w.jpg',
-        '750w': 'images/pkg-pump-750w.jpg',
-        '1300w': 'images/pkg-pump-1300w.jpg',
-        'pump': 'images/pkg-pump-750w.jpg',
-        'solar': 'images/pkg-hybrid-solar.jpg'
-      };
-
       featured.forEach(pkg => {
         const card = document.createElement('article');
         card.className = 'package-card fade-up visible' + (pkg.featured ? ' featured' : '');
 
+        const imgSrc = this.getPackageImage(pkg);
         const specs = (pkg.specs || '').split(',').map(s => s.trim()).filter(Boolean);
         const specsList = specs.map(s => `<li>${this.escapeHtml(s)}</li>`).join('');
         const price = pkg.price ? 'KES ' + Number(pkg.price).toLocaleString() : '';
         const slug = (pkg.name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-
-        // Pick image: use admin-uploaded image, or match by name keyword, or fallback
-        let imgSrc = pkg.image || '';
-        if (!imgSrc) {
-          const nameLower = (pkg.name || '').toLowerCase();
-          for (const [keyword, src] of Object.entries(defaultImages)) {
-            if (nameLower.includes(keyword)) { imgSrc = src; break; }
-          }
-          if (!imgSrc) imgSrc = 'images/solar-panel-daytime.jpg';
-        }
 
         card.innerHTML = `
           <div class="package-img"><img src="${imgSrc}" alt="${this.escapeHtml(pkg.name)}" loading="lazy"></div>
