@@ -157,19 +157,23 @@
         });
       }
 
-      // Social media links
+      // Social media links — update href if set, hide if empty
       const socialMap = {
         facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok',
         linkedin: 'LinkedIn', youtube: 'YouTube', twitter: 'Twitter'
       };
       Object.entries(socialMap).forEach(([key, label]) => {
-        if (s[key]) {
-          document.querySelectorAll('.footer-social a[aria-label="' + label + '"]').forEach(el => {
+        document.querySelectorAll('.footer-social a[aria-label="' + label + '"]').forEach(el => {
+          if (s[key]) {
             el.href = s[key];
             el.target = '_blank';
             el.rel = 'noopener';
-          });
-        }
+            el.style.display = '';
+          } else {
+            // Hide social icons that have no URL configured
+            el.style.display = 'none';
+          }
+        });
       });
 
       if (s.company) {
