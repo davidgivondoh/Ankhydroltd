@@ -16,10 +16,14 @@
       try {
         const resp = await fetch('site-data.json?v=' + Date.now());
         if (resp.ok) {
-          jsonData = await resp.json();
+          const text = await resp.text();
+          // Only parse if it's actually JSON (not an HTML error page)
+          if (text.trim().startsWith('{')) {
+            jsonData = JSON.parse(text);
+          }
         }
       } catch (e) {
-        // No JSON file available
+        // No JSON file available or parse error
       }
 
       // Also load from localStorage (for admin previewing locally or as supplement)
@@ -29,17 +33,19 @@
         // localStorage not available
       }
 
-      // Merge: JSON data takes priority, localStorage fills any gaps
+      // Merge: localStorage overrides JSON for keys it has (localStorage is always more recent)
       if (jsonData && localData) {
         this.data = jsonData;
         const keys = ['settings', 'stats', 'testimonials', 'team', 'faq', 'blog', 'packages', 'services', 'projects'];
         keys.forEach(key => {
-          if (!this.data[key] && localData[key]) {
+          // localStorage wins — it has the latest admin edits
+          if (localData[key]) {
             this.data[key] = localData[key];
           }
         });
       } else {
-        this.data = jsonData || localData;
+        // Use whichever is available — prefer localStorage (latest edits)
+        this.data = localData || jsonData;
       }
 
       if (!this.data) return;
