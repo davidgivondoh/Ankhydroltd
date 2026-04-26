@@ -250,11 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (packageParam) {
       const packageMap = {
-        'hybrid-solar': 'Hybrid Solar KES 360K',
-        'pump-200w': '200W Pump KES 52K',
-        'pump-500w': '500W Pump KES 86K',
-        'pump-750w': '750W Pump KES 125K',
-        'pump-1300w': '1300W Pump KES 140K'
+        'hybrid-solar': 'Hybrid Solar',
+        'pump-200w': '200W Pump',
+        'pump-500w': '500W Pump',
+        'pump-750w': '750W Pump',
+        'pump-1300w': '1300W Pump'
       };
 
       const packageSelect = document.getElementById('quote-package');

@@ -21,15 +21,15 @@
         <h3>1. Grid-Tied Solar Systems</h3>
         <p>These systems connect to the Kenya Power grid. They're the most affordable option since they don't require batteries. When your panels produce more electricity than you need, the excess goes back to the grid.</p>
         <ul>
-          <li><strong>Small home system (1-3 kW):</strong> KES 150,000 – 350,000</li>
-          <li><strong>Medium home system (3-5 kW):</strong> KES 350,000 – 600,000</li>
-          <li><strong>Large home/business (5-10 kW):</strong> KES 600,000 – 1,200,000</li>
+          <li><strong>Small home system (1-3 kW):</strong> Affordable entry point for basic needs</li>
+          <li><strong>Medium home system (3-5 kW):</strong> Most popular for 3-4 bedroom homes</li>
+          <li><strong>Large home/business (5-10 kW):</strong> For high-consumption households and businesses</li>
         </ul>
 
         <h3>2. Hybrid Solar Systems (Most Popular)</h3>
         <p>Hybrid systems combine solar panels with battery storage and grid connection. They provide power during blackouts and reduce your electricity bills significantly.</p>
         <ul>
-          <li><strong>ANK Hydro Hybrid Package:</strong> From KES 360,000</li>
+          <li><strong>ANK Hydro Hybrid Package:</strong> Call us for current pricing</li>
           <li>Includes: 5.12 kWh Lithium Battery, 550W Panels, 3000W Inverter</li>
           <li>Perfect for: 3-4 bedroom homes with standard appliances</li>
         </ul>
@@ -37,9 +37,9 @@
         <h3>3. Off-Grid Solar Systems</h3>
         <p>Ideal for areas without reliable grid access. These systems are fully independent and include larger battery banks.</p>
         <ul>
-          <li><strong>Basic off-grid (1-2 kW):</strong> KES 200,000 – 400,000</li>
-          <li><strong>Full home off-grid (3-5 kW):</strong> KES 500,000 – 900,000</li>
-          <li><strong>Farm/commercial off-grid (5-15 kW):</strong> KES 900,000 – 2,500,000</li>
+          <li><strong>Basic off-grid (1-2 kW):</strong> Small homes and basic lighting</li>
+          <li><strong>Full home off-grid (3-5 kW):</strong> Complete home independence</li>
+          <li><strong>Farm/commercial off-grid (5-15 kW):</strong> Heavy-duty applications</li>
         </ul>
 
         <h2>Factors That Affect Solar Installation Cost</h2>
@@ -79,7 +79,7 @@
           <li>Predict potential yield (water flow rate)</li>
           <li>Identify the best drilling point on your property</li>
         </ul>
-        <p><strong>Cost:</strong> KES 15,000 – 30,000 depending on property size and location.</p>
+        <p><strong>Cost:</strong> Contact us for current survey pricing based on your property size and location.</p>
         <p><strong>Why it matters:</strong> Drilling without a survey is gambling. A proper survey increases your chances of hitting water from about 50% to over 90%.</p>
 
         <h2>Step 2: Permits and Approvals</h2>
@@ -101,7 +101,7 @@
         </ul>
 
         <h2>Drilling Costs Breakdown</h2>
-        <p>Borehole drilling costs in Kenya typically range from <strong>KES 3,500 – 6,000 per metre</strong>, depending on:</p>
+        <p>Borehole drilling costs in Kenya vary depending on several factors. Call us on <a href="tel:+254758849293">+254 758 849 293</a> for an accurate quote based on:</p>
         <ul>
           <li><strong>Geology:</strong> Hard rock costs more to drill than soft formations</li>
           <li><strong>Depth:</strong> Most boreholes in Kenya are 50-200 metres deep</li>
@@ -109,12 +109,12 @@
           <li><strong>Development:</strong> Cleaning and flushing after drilling</li>
           <li><strong>Test pumping:</strong> Required to determine sustainable yield</li>
         </ul>
-        <p><strong>Example:</strong> A 100-metre borehole typically costs KES 350,000 – 600,000 including casing and development.</p>
+        <p><strong>Tip:</strong> Contact us for a free site assessment and detailed cost breakdown for your specific location.</p>
 
         <h2>Step 4: Pump Installation</h2>
         <p>After drilling, you need a pump to bring water to the surface. Options include:</p>
         <ul>
-          <li><strong>Solar-powered submersible pumps:</strong> KES 52,000 – 140,000 (no running costs)</li>
+          <li><strong>Solar-powered submersible pumps:</strong> Contact us for pricing (no running costs)</li>
           <li><strong>Electric submersible pumps:</strong> Lower upfront cost but ongoing electricity expenses</li>
           <li><strong>Hand pumps:</strong> Budget-friendly for low-volume domestic use</li>
         </ul>
@@ -163,7 +163,7 @@
         </ul>
 
         <h3>Cost</h3>
-        <p>Drip irrigation setup costs KES 80,000 – 200,000 per acre, depending on crop spacing and system quality.</p>
+        <p>Drip irrigation setup costs vary depending on crop spacing and system quality. Contact us for a tailored quote for your farm.</p>
 
         <h2>Overhead Sprinkler Irrigation</h2>
         <p>Sprinklers distribute water through the air, simulating rainfall. They cover large areas quickly and are simpler to set up.</p>
@@ -185,7 +185,7 @@
         </ul>
 
         <h3>Cost</h3>
-        <p>Overhead sprinkler systems cost KES 50,000 – 150,000 per acre, but use significantly more water over time.</p>
+        <p>Overhead sprinkler system costs vary by coverage area. They use significantly more water over time than drip systems. Call us for pricing.</p>
 
         <h2>Which Should You Choose?</h2>
         <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;">
@@ -237,21 +237,21 @@
           <li><strong>DC Disconnect + Changeover Switch</strong> — safety equipment</li>
           <li><strong>Full installation and wiring</strong></li>
         </ul>
-        <p><strong>Price: From KES 360,000</strong></p>
+        <p><strong>Call us on <a href="tel:+254758849293">+254 758 849 293</a> for current pricing.</strong></p>
 
         <h2>Who Should Get a Hybrid System?</h2>
         <ul>
           <li>Homeowners tired of frequent power outages</li>
-          <li>Anyone with monthly electricity bills above KES 5,000</li>
+          <li>Anyone with high monthly electricity bills</li>
           <li>Small businesses that need reliable power (shops, offices, salons)</li>
           <li>Homes with grid access but wanting to reduce bills</li>
         </ul>
 
         <h2>Savings Calculator</h2>
-        <p>If your monthly electricity bill is KES 8,000:</p>
+        <p>With a hybrid solar system, you can expect:</p>
         <ul>
-          <li>Annual savings: approximately KES 60,000 - 80,000</li>
-          <li>System pays for itself in: ~5 years</li>
+          <li>Significant annual savings on electricity bills</li>
+          <li>System typically pays for itself within 3-5 years</li>
           <li>Free electricity for remaining 20+ years</li>
         </ul>
 
@@ -339,8 +339,8 @@
 
         <h2>The Problem with Traditional Pumps</h2>
         <ul>
-          <li><strong>Electric pumps:</strong> Dependent on grid power, which is unreliable in rural areas. Monthly electricity costs of KES 3,000-8,000.</li>
-          <li><strong>Diesel pumps:</strong> Fuel costs of KES 5,000-15,000 per month. Noisy, polluting, and requires constant refuelling.</li>
+          <li><strong>Electric pumps:</strong> Dependent on grid power, which is unreliable in rural areas. Significant monthly electricity costs.</li>
+          <li><strong>Diesel pumps:</strong> High monthly fuel costs. Noisy, polluting, and requires constant refuelling.</li>
           <li><strong>Both:</strong> Ongoing maintenance costs and downtime when fuel/power is unavailable.</li>
         </ul>
 
@@ -355,17 +355,17 @@
 
         <h2>ANK Hydro Solar Pump Packages</h2>
         <table style="width:100%;border-collapse:collapse;margin:1.5rem 0;">
-          <tr style="background:var(--navy);color:white;"><th style="padding:.75rem;text-align:left;">Package</th><th style="padding:.75rem;text-align:left;">Price</th><th style="padding:.75rem;text-align:left;">Best For</th></tr>
-          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">200W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">KES 52,000</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Shallow wells, small gardens</td></tr>
-          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">500W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">KES 86,000</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Medium boreholes, small farms</td></tr>
-          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">750W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">KES 125,000</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Deep boreholes, medium farms</td></tr>
-          <tr><td style="padding:.5rem;">1300W Solar Pump</td><td style="padding:.5rem;">KES 140,000</td><td style="padding:.5rem;">Deep boreholes, large farms</td></tr>
+          <tr style="background:var(--navy);color:white;"><th style="padding:.75rem;text-align:left;">Package</th><th style="padding:.75rem;text-align:left;">Best For</th><th style="padding:.75rem;text-align:left;">Includes</th></tr>
+          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">200W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Shallow wells, small gardens</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Full kit + transport</td></tr>
+          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">500W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Medium boreholes, small farms</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Full kit + transport</td></tr>
+          <tr><td style="padding:.5rem;border-bottom:1px solid #eee;">750W Solar Pump</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Deep boreholes, medium farms</td><td style="padding:.5rem;border-bottom:1px solid #eee;">Full kit + transport</td></tr>
+          <tr><td style="padding:.5rem;">1300W Solar Pump</td><td style="padding:.5rem;">Deep boreholes, large farms</td><td style="padding:.5rem;">Full kit + transport</td></tr>
         </table>
-        <p>All packages include: pump, controller, solar panels, 50M HDPE pipe, cables, and transport.</p>
+        <p>All packages include: pump, controller, solar panels, 50M HDPE pipe, cables, and transport. <strong>Call <a href="tel:+254758849293">+254 758 849 293</a> for current pricing.</strong></p>
 
         <h2>Real Results from Our Clients</h2>
         <blockquote style="border-left:4px solid var(--cyan);padding:1rem 1.5rem;margin:1.5rem 0;background:var(--gray-50);border-radius:0 8px 8px 0;">
-          <p><em>"We switched from a diesel pump to a 750W solar pump from ANK Hydro. Our monthly pumping costs dropped from KES 12,000 to zero. The system paid for itself in less than a year."</em></p>
+          <p><em>"We switched from a diesel pump to a 750W solar pump from ANK Hydro. Our monthly pumping costs dropped to zero. The system paid for itself quickly."</em></p>
           <p><strong>— Peter K., Makueni County</strong></p>
         </blockquote>
 

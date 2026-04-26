@@ -195,11 +195,11 @@ const AdminApp = {
 
     if (!localStorage.getItem(this.DB_KEYS.packages)) {
       this.save('packages', [
-        { id: 1, name: 'Hybrid Domestic Solar Package', price: 360000, priceLabel: 'FROM KES 360,000', category: 'Solar', specs: '5.12 kWh Lithium Battery, 550W Panels, 3000ES kW Inverter, DC Disconnect, Changeover Switch', status: 'active', featured: true, order: 1 },
-        { id: 2, name: 'Solar Pump 200W', price: 52000, priceLabel: 'FROM KES 52,000', category: 'Pumps', specs: '200W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 2 },
-        { id: 3, name: 'Solar Pump 500W', price: 86000, priceLabel: 'FROM KES 86,000', category: 'Pumps', specs: '500W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 3 },
-        { id: 4, name: 'Solar Pump 750W', price: 125000, priceLabel: 'FROM KES 125,000', category: 'Pumps', specs: '750W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 4 },
-        { id: 5, name: 'Solar Pump 1300W', price: 140000, priceLabel: 'FROM KES 140,000', category: 'Pumps', specs: '1300W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: true, order: 5 }
+        { id: 1, name: 'Hybrid Domestic Solar Package', price: 0, priceLabel: 'Call us to enquire', category: 'Solar', specs: '5.12 kWh Lithium Battery, 550W Panels, 3000ES kW Inverter, DC Disconnect, Changeover Switch', status: 'active', featured: true, order: 1 },
+        { id: 2, name: 'Solar Pump 200W', price: 0, priceLabel: 'Call us to enquire', category: 'Pumps', specs: '200W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 2 },
+        { id: 3, name: 'Solar Pump 500W', price: 0, priceLabel: 'Call us to enquire', category: 'Pumps', specs: '500W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 3 },
+        { id: 4, name: 'Solar Pump 750W', price: 0, priceLabel: 'Call us to enquire', category: 'Pumps', specs: '750W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: false, order: 4 },
+        { id: 5, name: 'Solar Pump 1300W', price: 0, priceLabel: 'Call us to enquire', category: 'Pumps', specs: '1300W Pump, Controller, 340W Panels, 50M HDPE Pipe, Cables, Transport', status: 'active', featured: true, order: 5 }
       ]);
     }
 
@@ -221,8 +221,8 @@ const AdminApp = {
 
     if (!localStorage.getItem(this.DB_KEYS.faq)) {
       this.save('faq', [
-        { id: 1, question: 'How much does it cost to drill a borehole in Kenya?', answer: 'Costs typically range from KES 3,500–6,000 per metre drilled.', category: 'Borehole & Water', status: 'published', order: 1 },
-        { id: 2, question: 'What does the Hybrid Domestic Solar Package include?', answer: '5.12 kWh battery, 550W panels, 3000ES kW inverter, DC disconnect, changeover switch — from KES 360,000.', category: 'Solar Energy', status: 'published', order: 2 },
+        { id: 1, question: 'How much does it cost to drill a borehole in Kenya?', answer: 'Costs vary depending on depth, geological conditions, and location. Contact us for a free assessment and quote.', category: 'Borehole & Water', status: 'published', order: 1 },
+        { id: 2, question: 'What does the Hybrid Domestic Solar Package include?', answer: '5.12 kWh battery, 550W panels, 3000ES kW inverter, DC disconnect, changeover switch. Call us for current pricing.', category: 'Solar Energy', status: 'published', order: 2 },
         { id: 3, question: 'Do you offer after-sales support?', answer: 'Yes, we provide 24/7 availability for breakdowns, servicing, and maintenance.', category: 'General', status: 'published', order: 3 }
       ]);
     }
@@ -674,7 +674,7 @@ const AdminApp = {
         <div class="form-group"><label>Package Name</label><input type="text" id="m-name" value="${item?.name || ''}" /></div>
         <div class="form-row">
           <div class="form-group"><label>Price (KES)</label><input type="number" id="m-price" value="${item?.price || ''}" /></div>
-          <div class="form-group"><label>Price Label</label><input type="text" id="m-priceLabel" value="${item?.priceLabel || ''}" placeholder="FROM KES 360,000" /></div>
+          <div class="form-group"><label>Price Label</label><input type="text" id="m-priceLabel" value="${item?.priceLabel || ''}" placeholder="Call us to enquire" /></div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Category</label><select id="m-category"><option>Solar</option><option>Pumps</option><option>Irrigation</option><option>Infrastructure</option></select></div>
